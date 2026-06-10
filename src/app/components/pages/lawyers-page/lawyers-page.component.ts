@@ -18,6 +18,8 @@ export class LawyersPageComponent implements OnInit {
   loading = false;
   saving = false;
   message = '';
+  agentToken = '';
+  agentCommand = '';
   selectedLawyerId = '';
 
   lawyers: any[] = [];
@@ -142,6 +144,46 @@ export class LawyersPageComponent implements OnInit {
     }
   }
 
+  async registerLocalAgent(): Promise<void> {
+    if (!this.selectedLawyer) {
+      this.message = 'Selecione um advogado antes de registrar o agente local.';
+      return;
+    }
+
+    const agentKey = String(this.certificateForm.controls.local_agent_id.value || '').trim();
+    if (!agentKey) {
+      this.message = 'Informe o ID do agente local antes de registrar.';
+      this.certificateForm.controls.local_agent_id.markAsTouched();
+      return;
+    }
+
+    this.saving = true;
+    this.message = '';
+    this.agentToken = '';
+    this.agentCommand = '';
+    try {
+      const response = await firstValueFrom(
+        this.api.postPath<any>('certificate-agents/register', {
+          name: `Agente A3 - ${this.selectedLawyer.name}`,
+          agent_key: agentKey,
+          metadata: {
+            lawyer_id: this.selectedLawyerId,
+            lawyer_name: this.selectedLawyer.name,
+            certificate_mode: 'token_a3_local'
+          }
+        })
+      );
+      const data = response.data ?? {};
+      this.agentToken = data.agent_token ?? '';
+      this.agentCommand = `set JURISFLOW_API_URL=https://web-production-3c57a.up.railway.app/api/v1 && set CERTIFICATE_AGENT_TOKEN=${this.agentToken} && python agent.py`;
+      this.message = 'Agente local registrado. Guarde o token agora; ele nao sera exibido novamente.';
+    } catch {
+      this.message = 'Falha ao registrar agente local. Verifique sua permissao de integracoes.';
+    } finally {
+      this.saving = false;
+    }
+  }
+
   private configureCertificateMode(): void {
     this.applyCertificateValidators();
     this.certificateForm.controls.certificate_access_mode.valueChanges.subscribe((mode) => {
@@ -159,10 +201,14 @@ export class LawyersPageComponent implements OnInit {
     const fileControl = this.certificateForm.controls.certificate_file_url;
     const cloudRefControl = this.certificateForm.controls.cloud_certificate_ref;
     const providerControl = this.certificateForm.controls.certificate_provider;
+    const deviceControl = this.certificateForm.controls.device_identifier;
+    const agentControl = this.certificateForm.controls.local_agent_id;
 
     fileControl.clearValidators();
     cloudRefControl.clearValidators();
     providerControl.clearValidators();
+    deviceControl.clearValidators();
+    agentControl.clearValidators();
 
     if (this.certificateAccessMode === 'file_a1') {
       fileControl.setValidators([Validators.required]);
@@ -171,10 +217,16 @@ export class LawyersPageComponent implements OnInit {
       cloudRefControl.setValidators([Validators.required]);
       providerControl.setValidators([Validators.required]);
     }
+    if (this.certificateAccessMode === 'token_a3_local') {
+      deviceControl.setValidators([Validators.required]);
+      agentControl.setValidators([Validators.required]);
+    }
 
     fileControl.updateValueAndValidity({ emitEvent: false });
     cloudRefControl.updateValueAndValidity({ emitEvent: false });
     providerControl.updateValueAndValidity({ emitEvent: false });
+    deviceControl.updateValueAndValidity({ emitEvent: false });
+    agentControl.updateValueAndValidity({ emitEvent: false });
   }
 
   private normalizedCertificatePayload(): any {

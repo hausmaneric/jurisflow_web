@@ -75,8 +75,22 @@
       <label><span>Valido de</span><input type="date" formControlName="valid_from" /></label>
       <label><span>Valido ate</span><input type="date" formControlName="valid_until" /></label>
       <p class="form-hint full" *ngIf="certificateAccessMode === 'token_a3_local'">
-        Para A3/token fisico, o JurisFlow nao recebe arquivo nem chave privada. O conector do tribunal deve acionar um agente local ou provedor que assina no computador onde o token estiver conectado.
+        Para A3/token fisico, o JurisFlow nao recebe arquivo nem chave privada. Registre um agente local e execute-o no computador onde o token USB/smartcard estiver conectado.
       </p>
+      <div class="local-agent-box full" *ngIf="certificateAccessMode === 'token_a3_local'">
+        <div>
+          <strong>Agente local A3</strong>
+          <p>Use este registro para autenticar consultas no tribunal sem enviar certificado, PIN ou arquivo para a nuvem.</p>
+        </div>
+        <button class="secondary-button" type="button" (click)="registerLocalAgent()" [disabled]="saving || !certificateForm.controls.local_agent_id.value">
+          Registrar agente local
+        </button>
+        <div class="agent-token" *ngIf="agentToken">
+          <span>Token do agente, exibido apenas agora</span>
+          <code>{{ agentToken }}</code>
+          <small>Execute no computador do certificado: {{ agentCommand }}</small>
+        </div>
+      </div>
       <label class="full"><span>Termo de consentimento</span><textarea rows="4" formControlName="consent_text"></textarea></label>
       <label class="checkline full"><input type="checkbox" formControlName="consent_accepted" /> Consentimento aceito pelo advogado</label>
       <button class="primary-button full" type="submit" [disabled]="saving">Salvar e validar certificado</button>

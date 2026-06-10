@@ -76,6 +76,51 @@ button:disabled {
   line-height: 1.45;
 }
 
+.local-agent-box {
+  display: grid;
+  gap: 0.85rem;
+  border: 1px solid rgba(45, 110, 255, 0.18);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(13, 27, 42, 0.04), rgba(45, 110, 255, 0.06));
+  padding: 1rem;
+
+  strong {
+    display: block;
+    color: var(--jf-navy-900);
+    font-size: 0.96rem;
+  }
+
+  p,
+  small,
+  span {
+    color: var(--jf-slate-500);
+    margin: 0.25rem 0 0;
+  }
+}
+
+.agent-token {
+  display: grid;
+  gap: 0.45rem;
+  border: 1px dashed rgba(13, 27, 42, 0.22);
+  border-radius: 0.85rem;
+  background: #fff;
+  padding: 0.85rem;
+
+  code {
+    display: block;
+    overflow-wrap: anywhere;
+    border-radius: 0.65rem;
+    background: var(--jf-navy-900);
+    color: #fff;
+    padding: 0.75rem;
+  }
+
+  small {
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+  }
+}
+
 .lawyer-layout {
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr);
