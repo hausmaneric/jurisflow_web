@@ -1,0 +1,71 @@
+<section class="page-head">
+  <div>
+    <h1>{{ isEdit ? 'Documento' : 'Novo documento' }}</h1>
+    <p>Cadastre, gere, selecione arquivo e vincule documentos ao cliente, ao processo ou a ambos.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/documentos">Voltar</a>
+    @if (!isEdit) {
+      <button ejs-button cssClass="e-outline" (click)="generateFromTemplate()">{{ saving ? 'Gerando...' : 'Gerar por modelo' }}</button>
+    }
+    <button ejs-button cssClass="e-primary" (click)="save()">{{ saving ? 'Salvando...' : 'Salvar' }}</button>
+  </div>
+</section>
+
+<section class="detail-layout">
+  <article class="panel">
+    @if (loading) {
+      <div class="empty-state">Carregando documento...</div>
+    } @else {
+      <form [formGroup]="form" class="form-grid">
+        <label><span>Modelo</span><ejs-dropdownlist [dataSource]="templates" [fields]="{ text: 'name', value: 'id' }" formControlName="template_id" (change)="applyTemplate($event.value)"></ejs-dropdownlist></label>
+        <label><span>Nome do documento</span><ejs-textbox cssClass="juris-input" formControlName="title"></ejs-textbox></label>
+        <label><span>Tipo do arquivo</span><ejs-dropdownlist [dataSource]="fileTypeOptions" formControlName="file_type"></ejs-dropdownlist></label>
+        <label><span>Cliente</span><ejs-dropdownlist [dataSource]="clients" [fields]="{ text: 'name', value: 'id' }" formControlName="client_id"></ejs-dropdownlist></label>
+        <label><span>Processo</span><ejs-dropdownlist [dataSource]="cases" [fields]="{ text: 'title', value: 'id' }" formControlName="case_id"></ejs-dropdownlist></label>
+        <label class="full"><span>URL do arquivo / storage</span><ejs-textbox cssClass="juris-input" formControlName="file_url"></ejs-textbox></label>
+        <label><span>Status</span><ejs-dropdownlist [dataSource]="statusOptions" formControlName="status"></ejs-dropdownlist></label>
+      </form>
+    }
+    @if (errorMessage) { <div class="error-box">{{ errorMessage }}</div> }
+    @if (successMessage) { <div class="success-box">{{ successMessage }}</div> }
+  </article>
+
+  <article class="panel upload-preview">
+    <input #fileInput type="file" class="hidden-file-input" (change)="handleSelectedFile($event)" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.zip" />
+
+    @if (generatedContent) {
+      <h2>Pré-visualização gerada</h2>
+      <div class="upload-box">
+        <i class="pi pi-file-edit"></i>
+        <strong>Conteúdo pronto para revisão</strong>
+        <span>Revise o texto abaixo e depois salve o documento com a URL final do arquivo no storage.</span>
+      </div>
+      <div class="generated-preview">{{ generatedContent }}</div>
+    } @else if (selectedFileName) {
+      <h2>Arquivo selecionado</h2>
+      <div class="upload-box">
+        <i class="pi pi-file"></i>
+        <strong>{{ selectedFileName }}</strong>
+        <span>{{ selectedFileSize }}</span>
+        <button class="ghost-button" type="button" (click)="fileInput.click()">Trocar arquivo</button>
+      </div>
+    } @else if (form.value.template_id) {
+      <h2>Fluxo por modelo</h2>
+      <div class="upload-box">
+        <i class="pi pi-file-edit"></i>
+        <strong>Modelo selecionado</strong>
+        <span>Use “Gerar por modelo” para montar a primeira versão do documento com base no cliente e no processo.</span>
+      </div>
+      <button class="ghost-button full-width" type="button" (click)="fileInput.click()">Selecionar arquivo</button>
+    } @else {
+      <h2>Upload e preparação</h2>
+      <div class="upload-box">
+        <i class="pi pi-cloud-upload"></i>
+        <strong>Selecione um arquivo para começar</strong>
+        <span>O nome, o tipo e a URL temporária serão preenchidos automaticamente para revisão antes do salvamento.</span>
+        <button class="ghost-button" type="button" (click)="fileInput.click()">Selecionar arquivo</button>
+      </div>
+    }
+  </article>
+</section>

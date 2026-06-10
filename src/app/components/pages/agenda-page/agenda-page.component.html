@@ -1,0 +1,294 @@
+<section class="page-head">
+  <div>
+    <h1>Agenda</h1>
+    <p>Centralize compromissos, tarefas, prazos e acompanhamentos em um unico modulo operacional.</p>
+  </div>
+  <div class="header-actions">
+    <button class="ghost-button" (click)="openCreateTask()">Nova tarefa</button>
+    <button ejs-button cssClass="e-primary" (click)="openCreateAppointment()">Novo item da agenda</button>
+  </div>
+</section>
+
+@if (contextLabel) {
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Contexto ativo</h2>
+        <p>{{ contextLabel }}</p>
+      </div>
+      <button class="ghost-button" type="button" (click)="clearContext()">Limpar contexto</button>
+    </div>
+  </section>
+}
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2>Visoes da agenda</h2>
+      <p>Alterne entre calendario, lista, kanban e prazos sem sair do mesmo fluxo.</p>
+    </div>
+    <div class="header-actions segmented">
+      @for (mode of viewOptions; track mode) {
+        <button class="ghost-button" [class.active]="moduleView === mode" (click)="setModuleView(mode)">
+          {{ mode === 'calendario' ? 'Calendario' : mode === 'lista' ? 'Lista' : mode === 'kanban' ? 'Kanban' : 'Prazos' }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-actions">
+      <select [(ngModel)]="typeFilter">
+        <option value="todos">Todos os tipos</option>
+        <option value="compromisso">Compromissos</option>
+        <option value="audi">Audiencias</option>
+        <option value="consulta">Consultas</option>
+        <option value="tarefa">Tarefas</option>
+      </select>
+      <select [(ngModel)]="statusFilter">
+        <option value="todos">Todos os status</option>
+        <option value="pendente">Pendentes</option>
+        <option value="em andamento">Em andamento</option>
+        <option value="concluida">Concluidas</option>
+        <option value="atrasada">Atrasadas</option>
+      </select>
+      <select [(ngModel)]="priorityFilter">
+        <option value="todos">Todas as prioridades</option>
+        <option value="alta">Alta</option>
+        <option value="media">Media</option>
+        <option value="baixa">Baixa</option>
+      </select>
+      <select [(ngModel)]="ownerFilter">
+        <option value="todos">Todos os responsaveis</option>
+        @for (owner of owners; track owner) {
+          <option [value]="owner">{{ owner }}</option>
+        }
+      </select>
+    </div>
+  </div>
+</section>
+
+@if (moduleView === 'calendario') {
+  <section class="agenda-layout">
+    <article class="panel mini-calendar">
+      <div class="panel-head">
+        <div>
+          <h2>{{ monthLabel }}</h2>
+          <p>Calendario rapido</p>
+        </div>
+        <div class="month-actions">
+          <button class="ghost-button icon-only" type="button" title="Mes anterior" (click)="previousMonth()"><i class="pi pi-chevron-left"></i></button>
+          <button class="ghost-button icon-only" type="button" title="Proximo mes" (click)="nextMonth()"><i class="pi pi-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="calendar-grid">
+        <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+        @for (day of calendarDays; track day.date.getTime()) {
+          <button
+            [class.active]="day.date.getTime() === selectedDate.getTime()"
+            [class.outside]="day.isOutsideMonth"
+            [class.today]="day.isToday"
+            [class.has-items]="day.hasItems"
+            (click)="selectDay(day)"
+          >
+            {{ day.label }}
+          </button>
+        }
+      </div>
+      <div class="calendar-legend">
+        <div><span class="color blue"></span> Compromissos</div>
+        <div><span class="color green"></span> Audiencias</div>
+        <div><span class="color purple"></span> Prazos processuais</div>
+        <div><span class="color gold"></span> Tarefas</div>
+      </div>
+
+      <div class="upcoming-list">
+        <h3>Proximos itens</h3>
+        @for (event of upcomingItems; track event.id + event.title) {
+          <button class="upcoming-card action-card" type="button" (click)="openItemDetails(event)">
+            <strong>{{ event.title }}</strong>
+            <span>{{ event.timeLabel || event.dueDate }} - {{ event.location }}</span>
+            <small>{{ event.owner || event.process }}</small>
+          </button>
+        } @empty {
+          <div class="empty-state compact">Nenhum item futuro encontrado.</div>
+        }
+      </div>
+    </article>
+
+    <article class="panel timeline-panel">
+      <div class="panel-head">
+        <div>
+          <h2>{{ selectedDateLabel }}</h2>
+          <p>Visualizacao {{ calendarView }}</p>
+        </div>
+        <div class="header-actions">
+          <button class="ghost-button" type="button" (click)="goToday()">Hoje</button>
+          <button class="ghost-button" [class.active]="calendarView === 'dia'" (click)="setCalendarView('dia')">Dia</button>
+          <button class="ghost-button" [class.active]="calendarView === 'semana'" (click)="setCalendarView('semana')">Semana</button>
+          <button class="ghost-button" [class.active]="calendarView === 'mes'" (click)="setCalendarView('mes')">Mes</button>
+        </div>
+      </div>
+
+      <div class="timeline">
+        @for (slot of slots; track slot) {
+          <div class="time-row">
+            <strong>{{ slot }}</strong>
+            <div class="time-cell">
+              @for (event of eventsForSlot(slot); track event.id + event.title) {
+                <button class="event action-card" type="button" [class.blue]="event.color === 'blue'" [class.green]="event.color === 'green'" [class.gold]="event.color === 'gold'" [class.violet]="event.color === 'violet'" [class.red]="event.color === 'red'" (click)="openItemDetails(event)">
+                  <strong>{{ event.title }}</strong>
+                  <span>{{ event.timeLabel }} - {{ event.location }}</span>
+                  <small>Referencia: {{ event.owner || event.process }}</small>
+                </button>
+              } @empty {
+                <span class="slot-empty">Sem compromisso neste horario</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (selectedDayItems.length) {
+        <div class="day-summary">
+          <strong>{{ selectedDayItems.length }}</strong>
+          <span>{{ selectedDayItems.length === 1 ? 'item no dia selecionado' : 'itens no dia selecionado' }}</span>
+        </div>
+      }
+    </article>
+  </section>
+}
+
+@if (moduleView === 'lista') {
+  <section class="panel">
+    <div class="table-shell">
+      <table class="juris-table">
+        <thead>
+          <tr>
+            <th>Titulo</th>
+            <th>Tipo</th>
+            <th>Responsavel / Cliente</th>
+            <th>Data</th>
+            <th>Prioridade</th>
+            <th>Status</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of unifiedItems; track item.id + item.title) {
+            <tr>
+              <td><strong>{{ item.title }}</strong></td>
+              <td>{{ item.type }}</td>
+              <td>{{ item.owner || item.process }}</td>
+              <td>{{ item.timeLabel || item.dueDate }}</td>
+              <td><span class="tag soft">{{ item.priority }}</span></td>
+              <td><span class="status-pill">{{ item.status }}</span></td>
+              <td class="actions">
+                <i class="pi pi-eye" (click)="openItemDetails(item)"></i>
+                <i class="pi pi-pencil" (click)="openItemEdit(item)"></i>
+                <i class="pi pi-trash" (click)="requestRemoveItem(item)"></i>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7">Nenhum item encontrado para os filtros atuais.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+
+<app-confirm-dialog
+  [visible]="!!pendingRemoval"
+  title="Excluir item da agenda"
+  [message]="'Deseja excluir o item ' + (pendingRemoval?.title || 'selecionado') + '? Esta acao nao pode ser desfeita.'"
+  confirmLabel="Excluir item"
+  (cancel)="cancelRemove()"
+  (confirm)="confirmRemove()"
+/>
+
+@if (moduleView === 'kanban') {
+  <section class="kanban-grid">
+    <article class="panel column">
+      <h2>Pendentes</h2>
+      @for (task of pendingTasks; track task.id + task.title) {
+        <button class="task-card action-card" type="button" (click)="openItemDetails(task)">
+          <strong>{{ task.title }}</strong>
+          <span>{{ task.process }}</span>
+          <small>{{ task.owner }} - {{ task.dueDate }}</small>
+        </button>
+      } @empty {
+        <div class="task-card empty"><small>Sem tarefas pendentes.</small></div>
+      }
+    </article>
+
+    <article class="panel column">
+      <h2>Em andamento</h2>
+      @for (task of inProgressTasks; track task.id + task.title) {
+        <button class="task-card action-card" type="button" (click)="openItemDetails(task)">
+          <strong>{{ task.title }}</strong>
+          <span>{{ task.process }}</span>
+          <small>{{ task.owner }} - {{ task.dueDate }}</small>
+        </button>
+      } @empty {
+        <div class="task-card empty"><small>Sem tarefas em andamento.</small></div>
+      }
+    </article>
+
+    <article class="panel column">
+      <h2>Concluidas</h2>
+      @for (task of completedTasks; track task.id + task.title) {
+        <button class="task-card action-card" type="button" (click)="openItemDetails(task)">
+          <strong>{{ task.title }}</strong>
+          <span>{{ task.process }}</span>
+          <small>{{ task.owner }} - {{ task.dueDate }}</small>
+        </button>
+      } @empty {
+        <div class="task-card empty"><small>Sem tarefas concluidas.</small></div>
+      }
+    </article>
+
+    <article class="panel column">
+      <h2>Atrasadas</h2>
+      @for (task of overdueTasks; track task.id + task.title) {
+        <button class="task-card danger action-card" type="button" (click)="openItemDetails(task)">
+          <strong>{{ task.title }}</strong>
+          <span>{{ task.process }}</span>
+          <small>{{ task.owner }} - {{ task.dueDate }}</small>
+        </button>
+      } @empty {
+        <div class="task-card empty"><small>Sem tarefas atrasadas.</small></div>
+      }
+    </article>
+  </section>
+}
+
+@if (moduleView === 'prazos') {
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Prazos criticos</h2>
+        <p>Acompanhe itens de alta prioridade e tarefas que ja estao fora do prazo.</p>
+      </div>
+    </div>
+    <div class="deadline-list">
+      @for (task of deadlineItems; track task.id + task.title) {
+        <article class="deadline-card">
+          <button class="deadline-main action-card" type="button" (click)="openItemDetails(task)">
+            <div>
+              <strong>{{ task.title }}</strong>
+              <p>{{ task.process }}</p>
+            </div>
+            <div class="deadline-meta">
+              <span>{{ task.dueDate }}</span>
+              <small>{{ task.priority }} - {{ task.status }}</small>
+            </div>
+          </button>
+          <button class="ghost-button" (click)="openItemEdit(task)">Editar</button>
+        </article>
+      } @empty {
+        <div class="empty-state">Nenhum prazo critico encontrado para os filtros atuais.</div>
+      }
+    </div>
+  </section>
+}

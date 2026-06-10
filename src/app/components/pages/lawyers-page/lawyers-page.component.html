@@ -1,0 +1,92 @@
+<section class="page-head">
+  <div>
+    <h1>Advogados</h1>
+    <p>Gerencie OAB, especialidades, vinculo operacional e certificados digitais auditados.</p>
+  </div>
+  <button class="primary-button" type="button" (click)="load()" [disabled]="loading">Atualizar</button>
+</section>
+
+<p class="feedback" *ngIf="message">{{ message }}</p>
+
+<section class="lawyer-layout">
+  <article class="panel list-panel">
+    <div class="panel-title">
+      <h2>Equipe juridica</h2>
+      <span>{{ lawyers.length }} cadastro(s)</span>
+    </div>
+
+    <div class="lawyer-list" *ngIf="lawyers.length; else emptyLawyers">
+      <button type="button" *ngFor="let lawyer of lawyers" [class.active]="lawyer.id === selectedLawyerId" (click)="selectLawyer(lawyer.id)">
+        <strong>{{ lawyer.name }}</strong>
+        <span>OAB {{ lawyer.oab_state }} {{ lawyer.oab_number }}</span>
+        <small>{{ lawyer.email || 'E-mail nao informado' }}</small>
+      </button>
+    </div>
+
+    <ng-template #emptyLawyers>
+      <div class="empty-state">Nenhum advogado cadastrado.</div>
+    </ng-template>
+  </article>
+
+  <article class="panel form-panel">
+    <div class="panel-title">
+      <h2>Novo advogado</h2>
+      <span>Cadastro completo</span>
+    </div>
+
+    <form [formGroup]="lawyerForm" (ngSubmit)="saveLawyer()" class="form-grid">
+      <label><span>Nome completo</span><input formControlName="name" /></label>
+      <label><span>E-mail profissional</span><input formControlName="email" type="email" /></label>
+      <label><span>Telefone / WhatsApp</span><input formControlName="phone" /></label>
+      <label><span>Numero da OAB</span><input formControlName="oab_number" /></label>
+      <label><span>UF da OAB</span><input formControlName="oab_state" maxlength="2" /></label>
+      <label><span>Especialidades</span><input formControlName="specialties" placeholder="civil, trabalhista, empresarial" /></label>
+      <label class="checkline"><input type="checkbox" formControlName="active" /> Ativo</label>
+      <button class="primary-button full" type="submit" [disabled]="saving">Salvar advogado</button>
+    </form>
+  </article>
+
+  <article class="panel certificate-panel">
+    <div class="panel-title">
+      <div>
+        <h2>Certificado digital</h2>
+        <p *ngIf="selectedLawyer">Advogado: {{ selectedLawyer.name }}</p>
+        <p *ngIf="!selectedLawyer">Selecione um advogado para gerenciar certificados.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="certificateForm" (ngSubmit)="saveCertificate()" class="form-grid" *ngIf="selectedLawyer">
+      <label><span>Nome do certificado</span><input formControlName="certificate_name" /></label>
+      <label>
+        <span>Modo de uso</span>
+        <select formControlName="certificate_access_mode">
+          <option value="file_a1">A1 por arquivo seguro</option>
+          <option value="token_a3_local">A3 token USB/smartcard</option>
+          <option value="cloud_provider">Certificado em nuvem/provedor</option>
+        </select>
+      </label>
+      <label><span>Tipo</span><select formControlName="certificate_type"><option>A1</option><option>A3</option><option>Outro</option></select></label>
+      <label *ngIf="certificateAccessMode === 'file_a1'"><span>URL segura do arquivo A1</span><input formControlName="certificate_file_url" /></label>
+      <label *ngIf="certificateAccessMode === 'token_a3_local'"><span>Identificacao do token</span><input formControlName="device_identifier" placeholder="Serial, apelido ou token do agente local" /></label>
+      <label *ngIf="certificateAccessMode === 'token_a3_local'"><span>ID do agente local</span><input formControlName="local_agent_id" placeholder="Ex.: escritorio-sp-01" /></label>
+      <label *ngIf="certificateAccessMode === 'cloud_provider'"><span>Provedor</span><input formControlName="certificate_provider" placeholder="Ex.: Bird ID, NeoID, SafeID" /></label>
+      <label *ngIf="certificateAccessMode === 'cloud_provider'"><span>Referencia no provedor</span><input formControlName="cloud_certificate_ref" /></label>
+      <label><span>Autoridade certificadora</span><input formControlName="issuer" /></label>
+      <label><span>Valido de</span><input type="date" formControlName="valid_from" /></label>
+      <label><span>Valido ate</span><input type="date" formControlName="valid_until" /></label>
+      <p class="form-hint full" *ngIf="certificateAccessMode === 'token_a3_local'">
+        Para A3/token fisico, o JurisFlow nao recebe arquivo nem chave privada. O conector do tribunal deve acionar um agente local ou provedor que assina no computador onde o token estiver conectado.
+      </p>
+      <label class="full"><span>Termo de consentimento</span><textarea rows="4" formControlName="consent_text"></textarea></label>
+      <label class="checkline full"><input type="checkbox" formControlName="consent_accepted" /> Consentimento aceito pelo advogado</label>
+      <button class="primary-button full" type="submit" [disabled]="saving">Salvar e validar certificado</button>
+    </form>
+
+    <div class="certificate-list">
+      <div *ngFor="let item of certificates">
+        <strong>{{ item.certificate_name }}</strong>
+        <span>{{ item.certificate_type }} - {{ accessModeLabel(item.certificate_access_mode) }} - {{ item.status }} - vence {{ item.valid_until || 'sem data' }}</span>
+      </div>
+    </div>
+  </article>
+</section>

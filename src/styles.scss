@@ -1,0 +1,394 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --juris-bg: #f5f7fa;
+  --juris-surface: #ffffff;
+  --juris-surface-soft: #f8fbff;
+  --juris-surface-muted: #eef3fb;
+  --juris-border: rgba(13, 27, 42, 0.08);
+  --juris-navy: #0d1b2a;
+  --juris-navy-soft: #1b263b;
+  --juris-primary: #2d3e6f;
+  --juris-primary-soft: #3e5c9a;
+  --juris-gold: #d4af37;
+  --juris-gold-soft: #e1c16e;
+  --juris-text: #10213d;
+  --juris-text-soft: #68768e;
+  --juris-success: #35b26b;
+  --juris-danger: #ef6c61;
+  --juris-warning: #f0ad40;
+  --juris-violet: #7c5fe8;
+  --juris-blue: #2d6cff;
+  --juris-shadow: 0 20px 44px rgba(15, 31, 59, 0.06);
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top right, rgba(62, 92, 154, 0.12), transparent 24%),
+    radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.08), transparent 20%),
+    linear-gradient(180deg, #fbfcff 0%, var(--juris-bg) 100%);
+  color: var(--juris-text);
+  font-family: 'Manrope', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(13, 27, 42, 0.18);
+  border-radius: 999px;
+}
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--juris-navy);
+}
+
+.page-head p {
+  margin: 0.35rem 0 0;
+  color: var(--juris-text-soft);
+}
+
+.header-actions,
+.toolbar,
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.panel {
+  background: var(--juris-surface);
+  border: 1px solid var(--juris-border);
+  border-radius: 1.5rem;
+  box-shadow: var(--juris-shadow);
+  padding: 1.3rem;
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel-head.secondary {
+  margin-top: 1.4rem;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--juris-navy);
+}
+
+.panel-head p {
+  margin: 0.25rem 0 0;
+  color: var(--juris-text-soft);
+}
+
+.panel-head a {
+  color: var(--juris-blue);
+  font-weight: 700;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.metrics-grid.compact {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.metric-card {
+  background: var(--juris-surface);
+  border: 1px solid var(--juris-border);
+  border-radius: 1.4rem;
+  box-shadow: var(--juris-shadow);
+  padding: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metric-icon {
+  width: 3.65rem;
+  height: 3.65rem;
+  border-radius: 1.15rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+}
+
+.metric-card span,
+.metric-card small {
+  display: block;
+}
+
+.metric-card span {
+  color: var(--juris-text-soft);
+  font-size: 0.92rem;
+}
+
+.metric-card strong {
+  display: block;
+  margin: 0.28rem 0;
+  color: var(--juris-navy);
+  font-size: 1.85rem;
+}
+
+.metric-card small {
+  color: var(--juris-blue);
+  font-weight: 700;
+}
+
+.tone-blue .metric-icon {
+  background: #e9f0ff;
+  color: var(--juris-blue);
+}
+
+.tone-green .metric-icon {
+  background: #e9f8ee;
+  color: var(--juris-success);
+}
+
+.tone-purple .metric-icon {
+  background: #f1ebff;
+  color: var(--juris-violet);
+}
+
+.tone-gold .metric-icon {
+  background: #fff3de;
+  color: var(--juris-warning);
+}
+
+.tone-red .metric-icon {
+  background: #fff0ef;
+  color: var(--juris-danger);
+}
+
+.search-box {
+  flex: 1;
+  min-width: 15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--juris-border);
+  border-radius: 1rem;
+  padding: 0 1rem;
+  background: #fff;
+}
+
+.search-box.narrow {
+  max-width: 20rem;
+}
+
+.search-box input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 0.9rem 0;
+}
+
+.ghost-button {
+  border: 1px solid var(--juris-border);
+  background: #fff;
+  color: var(--juris-navy);
+  border-radius: 0.95rem;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.ghost-button.active {
+  background: #edf3ff;
+  color: var(--juris-primary);
+}
+
+.status-pill,
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.38rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-pill {
+  background: #eaf8ef;
+  color: var(--juris-success);
+}
+
+.status-pill.danger {
+  background: #fff0ef;
+  color: var(--juris-danger);
+}
+
+.status-pill.gold {
+  background: #fff4df;
+  color: var(--juris-warning);
+}
+
+.status-pill.soft-blue {
+  background: #edf3ff;
+  color: var(--juris-blue);
+}
+
+.tag.soft {
+  background: #eef3fb;
+  color: var(--juris-primary);
+}
+
+.table-shell {
+  overflow: auto;
+}
+
+.juris-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.juris-table th,
+.juris-table td {
+  text-align: left;
+  padding: 1rem 0.85rem;
+  border-top: 1px solid rgba(13, 27, 42, 0.07);
+}
+
+.juris-table thead th {
+  padding-top: 0.2rem;
+  color: var(--juris-text-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+  border-top: 0;
+}
+
+.juris-table tbody strong {
+  color: var(--juris-navy);
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.actions i {
+  margin-right: 0.7rem;
+  color: var(--juris-text-soft);
+  cursor: pointer;
+}
+
+.title-stack {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.title-stack span {
+  color: var(--juris-text-soft);
+  font-size: 0.85rem;
+}
+
+.e-btn.e-primary,
+.e-btn.e-primary:hover,
+.e-btn.e-primary:focus,
+.e-css.e-btn.e-primary {
+  background: linear-gradient(180deg, #102f60 0%, #0d1b2a 100%) !important;
+  border: 0 !important;
+  color: #fff !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 18px 32px rgba(13, 31, 59, 0.18) !important;
+  padding: 0.95rem 1.2rem !important;
+}
+
+.e-btn,
+.e-css.e-btn,
+.e-input-group,
+.e-control-wrapper,
+.e-ddl.e-input-group,
+.e-ddl.e-control-wrapper {
+  border-radius: 1rem !important;
+}
+
+.e-input-group,
+.e-control-wrapper.e-input-group,
+.e-ddl.e-input-group,
+.e-ddl.e-control-wrapper {
+  border-color: rgba(13, 27, 42, 0.12) !important;
+  background: #fff !important;
+}
+
+.e-input-group input,
+.e-ddl .e-input-value,
+.e-ddl .e-input-group-icon {
+  min-height: 46px !important;
+  background: #fff !important;
+  color: var(--juris-text) !important;
+}
+
+.e-dropdown-popup,
+.e-popup {
+  border-radius: 1rem !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 1400px) {
+  .metrics-grid,
+  .metrics-grid.compact {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 820px) {
+  .page-head,
+  .toolbar,
+  .toolbar-actions,
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .metrics-grid,
+  .metrics-grid.compact {
+    grid-template-columns: 1fr;
+  }
+}

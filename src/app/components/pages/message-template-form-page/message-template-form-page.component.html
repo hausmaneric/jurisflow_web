@@ -1,0 +1,85 @@
+<section class="page-head">
+  <div>
+    <h1>{{ isEdit ? 'Editar modelo de comunicação' : 'Novo modelo de comunicação' }}</h1>
+    <p>Defina o canal, o assunto e o conteúdo padrão das mensagens do escritório com placeholders reutilizáveis.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/modelos-comunicacao">Voltar</a>
+    <button ejs-button cssClass="e-primary" [disabled]="saving" (click)="save()">
+      {{ saving ? 'Salvando...' : 'Salvar modelo' }}
+    </button>
+  </div>
+</section>
+
+<section class="template-layout panel">
+  @if (loading) {
+    <div class="empty-state">Carregando modelo...</div>
+  } @else {
+    <div class="editor-column">
+      <form [formGroup]="form" class="form-grid">
+        <label>
+          <span>Nome do modelo</span>
+          <input type="text" formControlName="name" placeholder="Ex.: Aviso de audiência" />
+        </label>
+
+        <label>
+          <span>Canal</span>
+          <select formControlName="channel">
+            @for (channel of channelOptions; track channel.value) {
+              <option [value]="channel.value">{{ channel.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="full">
+          <span>Assunto</span>
+          <input type="text" formControlName="subject" [attr.placeholder]="subjectPlaceholder" />
+        </label>
+
+        <label class="full">
+          <span>Conteúdo da mensagem</span>
+          <textarea
+            rows="18"
+            formControlName="body"
+            placeholder="Escreva aqui a mensagem base usando os placeholders disponíveis."
+          ></textarea>
+        </label>
+
+        <label class="check full">
+          <input type="checkbox" formControlName="active" />
+          <span>Modelo ativo para uso no escritório</span>
+        </label>
+      </form>
+
+      @if (errorMessage) {
+        <div class="error-box">{{ errorMessage }}</div>
+      }
+    </div>
+
+    <aside class="preview-column">
+      <div class="preview-card">
+        <h3>Prévia do assunto</h3>
+        <p>Use esse espaço para validar rapidamente a linha principal da comunicação.</p>
+        <div class="subject-preview">{{ previewSubject }}</div>
+      </div>
+
+      <div class="preview-card">
+        <h3>Prévia da mensagem</h3>
+        <p>Veja como o modelo base está ficando antes de salvar.</p>
+        <div class="preview-surface">
+          <pre>{{ previewBody }}</pre>
+        </div>
+      </div>
+
+      <div class="preview-card">
+        <h3>Placeholders sugeridos</h3>
+        <p>Esses campos ajudam a personalizar automaticamente a mensagem para cliente, processo e responsável.</p>
+        <div class="chip-list">
+          @for (variable of variableSuggestions; track variable) {
+            <span class="chip">{{ variable }}</span>
+          }
+        </div>
+      </div>
+    </aside>
+  }
+</section>

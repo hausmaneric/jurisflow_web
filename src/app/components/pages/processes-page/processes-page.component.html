@@ -1,0 +1,135 @@
+<section class="page-head">
+  <div>
+    <h1>Processos</h1>
+    <p>Acompanhe o ciclo processual com contexto completo por cliente, area e fase.</p>
+  </div>
+  <div class="header-actions">
+    <button class="ghost-button" type="button">Importar</button>
+    <button ejs-button cssClass="e-primary" (click)="openCreate()">Novo processo</button>
+  </div>
+</section>
+
+<section class="metrics-grid compact">
+  <article class="metric-card tone-blue">
+    <div class="metric-icon"><i class="pi pi-briefcase"></i></div>
+    <div><span>Total de processos</span><strong>{{ totalProcesses }}</strong><small>Base sincronizada com a API</small></div>
+  </article>
+  <article class="metric-card tone-green">
+    <div class="metric-icon"><i class="pi pi-folder-open"></i></div>
+    <div><span>Em andamento</span><strong>{{ activeProcesses }}</strong><small>Fluxo processual ativo</small></div>
+  </article>
+  <article class="metric-card tone-purple">
+    <div class="metric-icon"><i class="pi pi-check-circle"></i></div>
+    <div><span>Arquivados</span><strong>{{ archivedProcesses }}</strong><small>Base historica</small></div>
+  </article>
+  <article class="metric-card tone-gold">
+    <div class="metric-icon"><i class="pi pi-pause-circle"></i></div>
+    <div><span>Suspensos</span><strong>{{ suspendedProcesses }}</strong><small>Exigem revisao ou retomada</small></div>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar por numero, cliente, area ou fase..." />
+    </div>
+    <button class="ghost-button" type="button"><i class="pi pi-filter"></i> Filtros</button>
+  </div>
+
+  <div class="table-shell">
+    <table class="juris-table">
+      <thead>
+        <tr>
+          <th>Processo</th>
+          <th>Cliente</th>
+          <th>Area</th>
+          <th>Vara / Tribunal</th>
+          <th>Fase</th>
+          <th>Status</th>
+          <th>Acoes</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (!filteredProcesses.length) {
+          <tr>
+            <td colspan="7">Nenhum processo encontrado para o filtro atual.</td>
+          </tr>
+        } @else {
+          @for (process of filteredProcesses; track process.id ?? process.processo) {
+            <tr>
+              <td><strong>{{ process.processo }}</strong></td>
+              <td>{{ process.cliente }}</td>
+              <td>{{ process.area }}</td>
+              <td>{{ process.vara }}</td>
+              <td>{{ process.fase }}</td>
+              <td><span class="status-pill" [class.soft-blue]="process.status === 'Arquivado'">{{ process.status }}</span></td>
+              <td class="actions">
+                <i class="pi pi-eye" (click)="openDetails(process)"></i>
+                <i class="pi pi-pencil" (click)="openEdit(process)"></i>
+                <i class="pi pi-trash" (click)="requestRemove(process)"></i>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<app-confirm-dialog
+  [visible]="!!pendingRemoval"
+  title="Excluir processo"
+  [message]="'Deseja excluir o processo ' + (pendingRemoval?.processo || 'selecionado') + '? Esta acao nao pode ser desfeita.'"
+  confirmLabel="Excluir processo"
+  (cancel)="cancelRemove()"
+  (confirm)="confirmRemove()"
+/>
+
+<section class="dual-grid">
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Resumo do processo em destaque</h2>
+        <p>{{ featuredProcess?.processo || 'Nenhum processo selecionado' }}</p>
+      </div>
+      <span class="status-pill">{{ featuredProcess?.status || 'Sem status' }}</span>
+    </div>
+
+    @if (featuredProcess) {
+      <div class="info-grid">
+        <div><span>Cliente</span><strong>{{ featuredProcess.cliente }}</strong></div>
+        <div><span>Area</span><strong>{{ featuredProcess.area || 'Nao informada' }}</strong></div>
+        <div><span>Vara / Tribunal</span><strong>{{ featuredProcess.vara || 'Nao informado' }}</strong></div>
+        <div><span>Fase</span><strong>{{ featuredProcess.fase || 'Nao informada' }}</strong></div>
+        <div><span>Status atual</span><strong>{{ featuredProcess.status }}</strong></div>
+        <div><span>Acompanhamento</span><strong>Visao consolidada no modulo do processo</strong></div>
+      </div>
+    } @else {
+      <div class="empty-state">Nenhum processo disponivel no momento.</div>
+    }
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Itens da agenda do processo</h2>
+        <p>Tarefas e prazos vinculados ao processo em destaque</p>
+      </div>
+    </div>
+
+    @if (!featuredTasks.length) {
+      <div class="empty-state">Nenhuma tarefa vinculada encontrada para este processo.</div>
+    } @else {
+      <div class="list-rows">
+        @for (task of featuredTasks; track task.id ?? task.tarefa) {
+          <button class="list-row action-row" type="button" (click)="openTask(task)">
+            <strong>{{ task.tarefa }}</strong>
+            <span>{{ task.prazo || '-' }}</span>
+            <small>{{ task.status }}</small>
+          </button>
+        }
+      </div>
+    }
+  </article>
+</section>

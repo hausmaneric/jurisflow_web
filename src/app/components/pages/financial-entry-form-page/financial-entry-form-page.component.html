@@ -1,0 +1,111 @@
+<section class="page-head">
+  <div>
+    <h1>{{ isEdit ? 'Lancamento financeiro' : 'Novo lancamento' }}</h1>
+    <p>{{ isEdit ? 'Atualize os dados financeiros e mantenha o historico da operacao consistente.' : 'Cadastre uma nova receita ou despesa no fluxo financeiro do JurisFlow.' }}</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/financeiro">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="save()">{{ saving ? 'Salvando...' : 'Salvar' }}</button>
+  </div>
+</section>
+
+<section class="detail-layout">
+  <article class="panel form-card">
+    @if (loading) {
+      <div class="empty-state">Carregando lancamento...</div>
+    } @else {
+      <form [formGroup]="form" class="form-grid">
+        <label>
+          <span>Data do lancamento</span>
+          <input type="date" formControlName="entry_date" />
+        </label>
+
+        <label>
+          <span>Tipo</span>
+          <select formControlName="entry_type">
+            @for (item of typeOptions; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="full">
+          <span>Descricao</span>
+          <input type="text" formControlName="description" placeholder="Ex.: Honorarios advocaticios do processo relacionado" />
+        </label>
+
+        <label>
+          <span>Categoria</span>
+          <select formControlName="category">
+            @for (item of categoryOptions; track item) {
+              <option [value]="item">{{ item }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Conta</span>
+          <input type="text" formControlName="account_label" placeholder="Conta principal" />
+        </label>
+
+        <label>
+          <span>Valor</span>
+          <input type="number" min="0.01" step="0.01" formControlName="amount" placeholder="0,00" />
+        </label>
+
+        <label>
+          <span>Status</span>
+          <select formControlName="status">
+            @for (item of statusOptions; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Cliente relacionado</span>
+          <select formControlName="client_id">
+            <option value="">Nao vincular</option>
+            @for (client of clients; track client.id) {
+              <option [value]="client.id">{{ client.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Processo relacionado</span>
+          <select formControlName="case_id">
+            <option value="">Nao vincular</option>
+            @for (item of cases; track item.id) {
+              <option [value]="item.id">{{ item.caseNumber ? (item.caseNumber + ' - ' + item.title) : item.title }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="full">
+          <span>Observacoes</span>
+          <textarea rows="6" formControlName="notes" placeholder="Contexto do lancamento, comprovantes, condicoes de recebimento ou pagamento..."></textarea>
+        </label>
+      </form>
+    }
+
+    @if (errorMessage) {
+      <div class="error-box">{{ errorMessage }}</div>
+    }
+  </article>
+
+  <article class="panel side-card">
+    <div class="avatar-big">{{ currentTypeLabel === 'Despesa' ? 'DS' : 'RC' }}</div>
+    <h2>{{ form.value.description || 'Novo lancamento' }}</h2>
+    <div class="pill-row">
+      <span class="status-pill">{{ currentTypeLabel }}</span>
+      <span class="tag soft">{{ form.value.status || 'pending' }}</span>
+    </div>
+    <div class="info-list">
+      <div><span>Valor previsto</span><strong>{{ previewAmount }}</strong></div>
+      <div><span>Categoria</span><strong>{{ form.value.category || 'Geral' }}</strong></div>
+      <div><span>Conta</span><strong>{{ form.value.account_label || 'Conta principal' }}</strong></div>
+      <div><span>Data</span><strong>{{ form.value.entry_date || 'Nao informada' }}</strong></div>
+    </div>
+  </article>
+</section>

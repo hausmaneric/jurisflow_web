@@ -1,0 +1,143 @@
+:host {
+  display: block;
+}
+
+.header-actions,
+.toolbar-actions,
+.stage-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toolbar-actions .ghost-button.active {
+  background: rgba(13, 27, 42, 0.08);
+  color: var(--juris-navy);
+}
+
+.kanban-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.kanban-column {
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  border-radius: 1.2rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  padding: 1rem;
+}
+
+.kanban-column header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.kanban-column h3 {
+  margin: 0;
+  color: var(--juris-navy);
+}
+
+.kanban-column small {
+  color: rgba(13, 27, 42, 0.58);
+}
+
+.count-badge {
+  min-width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.15);
+  color: #9d6b00;
+  font-weight: 800;
+}
+
+.kanban-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.kanban-card {
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  border-radius: 1rem;
+  background: #fff;
+  padding: 0.95rem;
+  box-shadow: 0 12px 28px rgba(13, 27, 42, 0.04);
+}
+
+.kanban-head {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.kanban-head strong {
+  color: var(--juris-navy);
+}
+
+.kanban-head span,
+.kanban-card p {
+  color: rgba(13, 27, 42, 0.64);
+}
+
+.kanban-card p {
+  margin: 0.8rem 0;
+  min-height: 2.2rem;
+}
+
+.kanban-card footer {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.text-link,
+.mini-action {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.text-link {
+  padding: 0;
+  color: #215dd8;
+  font-weight: 700;
+  text-align: left;
+}
+
+.mini-action {
+  padding: 0.32rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(13, 27, 42, 0.06);
+  color: var(--juris-navy);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.empty-kanban {
+  border: 1px dashed rgba(13, 27, 42, 0.14);
+  border-radius: 1rem;
+  padding: 1rem;
+  color: rgba(13, 27, 42, 0.55);
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .kanban-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .kanban-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-actions,
+  .toolbar-actions {
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,158 @@
+<section class="page-head">
+  <div>
+    <h1>Documentos</h1>
+    <p>Organize, categorize e vincule documentos a processos e clientes.</p>
+  </div>
+  <button ejs-button cssClass="e-primary" (click)="openCreate()">Novo documento</button>
+</section>
+
+<section class="metrics-grid compact">
+  <article class="metric-card tone-blue"><div class="metric-icon"><i class="pi pi-folder"></i></div><div><span>Total de documentos</span><strong>{{ data.documents.length }}</strong><small>Base consolidada</small></div></article>
+  <article class="metric-card tone-gold"><div class="metric-icon"><i class="pi pi-folder-open"></i></div><div><span>Pastas</span><strong>{{ documentFolders.length }}</strong><small>Estrutura organizada</small></div></article>
+  <article class="metric-card tone-blue"><div class="metric-icon"><i class="pi pi-clock"></i></div><div><span>Em filtro</span><strong>{{ filteredDocuments.length }}</strong><small>Resultado atual</small></div></article>
+  <article class="metric-card tone-green"><div class="metric-icon"><i class="pi pi-file"></i></div><div><span>Tipos ativos</span><strong>{{ documentTypes.length }}</strong><small>Formatos mapeados</small></div></article>
+</section>
+
+<section class="dual-grid">
+  <article class="panel">
+    <div class="toolbar">
+      <div class="search-box">
+        <i class="pi pi-search"></i>
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar documentos..." />
+      </div>
+      <div class="toolbar-actions">
+        <select [(ngModel)]="typeFilter">
+          <option value="todos">Todos os tipos</option>
+          @for (type of documentTypes; track type) {
+            <option [value]="type.toLowerCase()">{{ type }}</option>
+          }
+        </select>
+        <select [(ngModel)]="folderFilter">
+          <option value="todas">Todas as pastas</option>
+          @for (folder of documentFolders; track folder) {
+            <option [value]="folder">{{ folder }}</option>
+          }
+        </select>
+        <button class="ghost-button"><i class="pi pi-filter"></i> Filtros</button>
+      </div>
+    </div>
+
+    <div class="table-shell">
+      <table class="juris-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Tipo</th>
+            <th>Processo / Cliente</th>
+            <th>Pasta</th>
+            <th>Adicionado em</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (document of filteredDocuments; track document.id ?? document.nome; let i = $index) {
+            <tr [class.selected-row]="selectedDocument?.id === document.id" (click)="selectDocument(i)">
+              <td><strong>{{ document.nome }}</strong></td>
+              <td><span class="tag soft">{{ document.tipo }}</span></td>
+              <td>{{ document.processoCliente }}</td>
+              <td>{{ document.pasta }}</td>
+              <td>{{ document.adicionado }}</td>
+              <td class="actions">
+                <i class="pi pi-eye" (click)="openDetails(document)"></i>
+                <i class="pi pi-pencil" (click)="openEdit(document)"></i>
+                <i class="pi pi-trash" (click)="requestRemove(document)"></i>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6">Nenhum documento encontrado para os filtros atuais.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  @if (selectedDocument) {
+    <article class="panel form-panel">
+      <div class="panel-head">
+        <div>
+          <h2>{{ selectedDocument.nome }}</h2>
+          <p>Resumo rapido do documento selecionado.</p>
+        </div>
+      </div>
+      <div class="upload-box compact">
+        <i class="pi pi-file"></i>
+        <strong>{{ selectedDocument.tipo }}</strong>
+        <span>{{ selectedDocument.pasta }}</span>
+        <button class="ghost-button" (click)="openDetails(selectedDocument)">Abrir detalhes</button>
+        @if (selectedDocument.fileUrl) {
+          <button class="ghost-button" (click)="openFile(selectedDocument)">Abrir arquivo</button>
+          <button class="ghost-button" (click)="downloadFile(selectedDocument)">Baixar arquivo</button>
+        }
+      </div>
+      <div class="form-grid">
+        <label><span>Nome do documento</span><input type="text" [value]="selectedDocument.nome" readonly /></label>
+        <label><span>Tipo de documento</span><input type="text" [value]="selectedDocument.tipo" readonly /></label>
+        <label><span>Processo / cliente</span><input type="text" [value]="selectedDocument.processoCliente" readonly /></label>
+        <label><span>Pasta</span><input type="text" [value]="selectedDocument.pasta" readonly /></label>
+        <label><span>Status</span><input type="text" [value]="selectedDocument.status || '-'" readonly /></label>
+        <label class="full"><span>Adicionado em</span><input type="text" [value]="selectedDocument.adicionado" readonly /></label>
+      </div>
+      <div class="notes-box">
+        <span>Resumo do arquivo</span>
+        <p>{{ selectedDocument.resumo || 'Sem resumo adicional para este documento.' }}</p>
+      </div>
+      <div class="toolbar-actions">
+        @if (selectedDocument.clientId) {
+          <a class="ghost-button" [routerLink]="['/plataforma/clientes', selectedDocument.clientId]">Abrir cliente</a>
+        }
+        @if (selectedDocument.caseId) {
+          <a class="ghost-button" [routerLink]="['/plataforma/processos', selectedDocument.caseId]">Abrir processo</a>
+        }
+        <button class="ghost-button" type="button" (click)="openRelatedCommunication()">Nova comunicacao</button>
+      </div>
+      <div class="notes-box">
+        <span>Comunicacoes relacionadas</span>
+        <div class="timeline-list compact">
+          @for (message of relatedCommunications; track message.id || message.assunto) {
+            <button class="linked-item" type="button" (click)="openCommunication(message)">
+              <strong>{{ message.assunto }}</strong>
+              <small>{{ message.canal }} - {{ message.dataHora }}</small>
+            </button>
+          } @empty {
+            <div class="timeline-item empty">Nenhuma comunicacao relacionada encontrada.</div>
+          }
+        </div>
+      </div>
+      <button ejs-button cssClass="e-primary full-width" (click)="openEdit(selectedDocument)">Editar documento</button>
+    </article>
+  }
+</section>
+
+<app-confirm-dialog
+  [visible]="!!pendingRemoval"
+  title="Excluir documento"
+  [message]="'Deseja excluir o documento ' + (pendingRemoval?.nome || 'selecionado') + '? Esta acao nao pode ser desfeita.'"
+  confirmLabel="Excluir documento"
+  (cancel)="cancelRemove()"
+  (confirm)="confirmRemove()"
+/>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2>Modelos de documento</h2>
+      <p>Abra um novo documento ja preparado com o modelo e com o contexto atual.</p>
+    </div>
+  </div>
+
+  <div class="timeline-list compact">
+    @for (template of filteredTemplates; track template.id) {
+      <button class="linked-item" type="button" (click)="openFromTemplate(template)">
+        <strong>{{ template.name }}</strong>
+        <small>{{ template.category || 'Geral' }} - {{ template.fileType || 'PDF' }}</small>
+      </button>
+    } @empty {
+      <div class="timeline-item empty">Nenhum modelo de documento disponivel.</div>
+    }
+  </div>
+</section>

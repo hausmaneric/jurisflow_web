@@ -1,0 +1,140 @@
+<section class="page-head">
+  <div>
+    <h1>Clientes</h1>
+    <p>Gerencie a base do escritorio, acompanhe leads no funil e transforme o atendimento em operacao organizada.</p>
+  </div>
+  <div class="header-actions">
+    @if (leadCaptureUrl) {
+      <button class="ghost-button" (click)="openLeadCapturePage()">Abrir pagina publica de leads</button>
+    }
+    <button ejs-button cssClass="e-primary" (click)="openCreate()">Novo cliente</button>
+  </div>
+</section>
+
+<section class="metrics-grid compact">
+  <article class="metric-card tone-blue">
+    <div class="metric-icon"><i class="pi pi-users"></i></div>
+    <div><span>Clientes ativos</span><strong>{{ countByStage('active') }}</strong><small>Carteira em operacao</small></div>
+  </article>
+  <article class="metric-card tone-green">
+    <div class="metric-icon"><i class="pi pi-user-plus"></i></div>
+    <div><span>Leads</span><strong>{{ countByStage('lead') }}</strong><small>Oportunidades em qualificacao</small></div>
+  </article>
+  <article class="metric-card tone-purple">
+    <div class="metric-icon"><i class="pi pi-briefcase"></i></div>
+    <div><span>Propostas</span><strong>{{ countByStage('proposta') }}</strong><small>Negociacoes em andamento</small></div>
+  </article>
+  <article class="metric-card tone-gold">
+    <div class="metric-icon"><i class="pi pi-check-circle"></i></div>
+    <div><span>Finalizados</span><strong>{{ countByStage('archived') }}</strong><small>Historico encerrado</small></div>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input type="text" [value]="searchTerm" (input)="updateSearch($any($event.target).value)" placeholder="Buscar por nome, e-mail, CPF/CNPJ ou telefone..." />
+    </div>
+    <div class="toolbar-actions">
+      <button class="ghost-button" [class.active]="viewMode === 'lista'" (click)="viewMode = 'lista'">Lista</button>
+      <button class="ghost-button" [class.active]="viewMode === 'kanban'" (click)="viewMode = 'kanban'">Kanban</button>
+    </div>
+  </div>
+
+  @if (viewMode === 'lista') {
+    <div class="table-shell">
+      <table class="juris-table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Tipo</th>
+            <th>Contato</th>
+            <th>Responsavel</th>
+            <th>Status</th>
+            <th>Cadastro</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of clients; track client.id ?? client.nome) {
+            <tr>
+              <td>
+                <div class="title-stack">
+                  <strong>{{ client.nome }}</strong>
+                  <span>{{ client.email || client.phone || 'Contato em atualizacao' }}</span>
+                </div>
+              </td>
+              <td><span class="tag soft">{{ client.tipo }}</span></td>
+              <td>{{ client.contato }}</td>
+              <td>{{ client.responsavel }}</td>
+              <td><span class="status-pill">{{ client.status }}</span></td>
+              <td>{{ client.cadastro }}</td>
+              <td class="actions">
+                <i class="pi pi-eye" (click)="openDetails(client)"></i>
+                <i class="pi pi-pencil" (click)="openEdit(client)"></i>
+                <i class="pi pi-trash" (click)="requestRemove(client)"></i>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7">Nenhum cliente encontrado para a busca atual.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="kanban-grid">
+      @for (stage of funnelStages; track stage.key) {
+        <article class="kanban-column">
+          <header>
+            <div>
+              <h3>{{ stage.label }}</h3>
+              <small>{{ stage.helper }}</small>
+            </div>
+            <span class="count-badge">{{ countByStage(stage.key) }}</span>
+          </header>
+
+          <div class="kanban-list">
+            @for (client of clientsByStage(stage.key); track client.id ?? client.nome) {
+              <div class="kanban-card">
+                <div class="kanban-head">
+                  <strong>{{ client.nome }}</strong>
+                  <span>{{ client.tipo }}</span>
+                </div>
+                <p>{{ client.email || client.phone || client.contato }}</p>
+                <footer>
+                  <button class="text-link" (click)="openDetails(client)">Abrir</button>
+                  <div class="stage-actions">
+                    @if (stage.key !== 'lead') {
+                      <button class="mini-action" (click)="moveStage(client, 'lead')">Lead</button>
+                    }
+                    @if (stage.key !== 'proposta') {
+                      <button class="mini-action" (click)="moveStage(client, 'proposta')">Proposta</button>
+                    }
+                    @if (stage.key !== 'active') {
+                      <button class="mini-action" (click)="moveStage(client, 'active')">Contratado</button>
+                    }
+                    @if (stage.key !== 'archived') {
+                      <button class="mini-action" (click)="moveStage(client, 'archived')">Finalizar</button>
+                    }
+                  </div>
+                </footer>
+              </div>
+            } @empty {
+              <div class="empty-kanban">Nenhum cliente nesta etapa.</div>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
+
+<app-confirm-dialog
+  [visible]="!!pendingRemoval"
+  title="Excluir cliente"
+  [message]="'Deseja excluir o cliente ' + (pendingRemoval?.nome || 'selecionado') + '? Esta acao nao pode ser desfeita.'"
+  confirmLabel="Excluir cliente"
+  (cancel)="cancelRemove()"
+  (confirm)="confirmRemove()"
+/>

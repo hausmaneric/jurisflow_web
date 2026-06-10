@@ -1,0 +1,99 @@
+<section class="lead-layout">
+  <aside class="brand-panel">
+    <div class="brand-card">
+      <span class="eyebrow">Captacao de leads</span>
+      <h1>{{ officeName }}</h1>
+      <p>
+        Envie seu contato para receber atendimento, proposta ou retorno do escritorio com muito mais agilidade.
+      </p>
+
+      <div class="brand-highlights">
+        <article>
+          <strong>Atendimento rapido</strong>
+          <span>Seu contato ja entra no funil do escritorio com prioridade e contexto.</span>
+        </article>
+        <article>
+          <strong>Historico centralizado</strong>
+          <span>Mensagens, documentos e agenda podem nascer desse primeiro contato.</span>
+        </article>
+        <article>
+          <strong>Fluxo profissional</strong>
+          <span>O escritorio acompanha tudo pelo Kanban e pelas acoes automaticas do JurisFlow.</span>
+        </article>
+      </div>
+
+      @if (company?.email || company?.phone) {
+        <div class="office-meta">
+          @if (company?.email) {
+            <span>{{ company?.email }}</span>
+          }
+          @if (company?.phone) {
+            <span>{{ company?.phone }}</span>
+          }
+        </div>
+      }
+    </div>
+  </aside>
+
+  <main class="form-panel">
+    <div class="form-card">
+      <div class="form-head">
+        <h2>Solicitar contato</h2>
+        <p>Preencha seus dados e o escritorio retorna pelo melhor canal.</p>
+      </div>
+
+      @if (loading) {
+        <div class="state-box neutral">Carregando dados do escritorio...</div>
+      } @else if (errorMessage && !company) {
+        <div class="state-box danger">{{ errorMessage }}</div>
+      } @else {
+        <form [formGroup]="form" class="lead-form" (ngSubmit)="submit()">
+          <label>
+            <span>Nome completo</span>
+            <input type="text" formControlName="name" placeholder="Seu nome completo" />
+          </label>
+
+          <div class="grid-two">
+            <label>
+              <span>E-mail</span>
+              <input type="email" formControlName="email" placeholder="voce@email.com" />
+            </label>
+
+            <label>
+              <span>Telefone / WhatsApp</span>
+              <input type="text" formControlName="phone" placeholder="(11) 99999-9999" />
+            </label>
+          </div>
+
+          <label>
+            <span>CPF / CNPJ (opcional)</span>
+            <input type="text" formControlName="document" placeholder="Informe se desejar adiantar o cadastro" />
+          </label>
+
+          <label>
+            <span>Como podemos ajudar?</span>
+            <textarea
+              rows="6"
+              formControlName="notes"
+              placeholder="Descreva rapidamente seu caso, atendimento ou necessidade."
+            ></textarea>
+          </label>
+
+          @if (success) {
+            <div class="state-box success">
+              Seu contato foi enviado com sucesso. O escritorio ja pode acompanhar esse lead dentro do JurisFlow.
+            </div>
+          }
+
+          @if (errorMessage && company) {
+            <div class="state-box danger">{{ errorMessage }}</div>
+          }
+
+          <button ejs-button cssClass="e-primary submit-button" [disabled]="saving">
+            {{ saving ? 'Enviando...' : 'Enviar contato' }}
+          </button>
+        </form>
+      }
+    </div>
+  </main>
+</section>

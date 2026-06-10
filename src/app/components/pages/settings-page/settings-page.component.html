@@ -1,0 +1,188 @@
+<section class="page-head">
+  <div>
+    <h1>Configuracoes</h1>
+    <p>Gerencie preferencias, identidade visual, seguranca, comunicacao e integracoes do escritorio.</p>
+  </div>
+  <div class="search-box narrow">
+    <i class="pi pi-search"></i>
+    <input
+      type="text"
+      [value]="searchTerm"
+      (input)="setSearchTerm($any($event.target).value)"
+      placeholder="Buscar nas configuracoes..."
+    />
+  </div>
+</section>
+
+<section class="settings-layout" [formGroup]="form">
+  <article class="panel preferences-panel">
+    <h2>Preferencias</h2>
+    <div class="pref-list">
+      @for (item of filteredPreferences; track item.id) {
+        <button
+          type="button"
+          [class.active]="item.id === selectedPreference"
+          (click)="selectPreference(item.id)"
+        >
+          <strong>{{ item.label }}</strong>
+          <span>{{ item.description }}</span>
+        </button>
+      }
+    </div>
+  </article>
+
+  @if (sectionVisible('geral')) {
+    <article class="panel" #settingsSection data-section="geral">
+      <div class="panel-head">
+        <div>
+          <h2>Configuracoes gerais</h2>
+          <p>Ajuste os dados principais do escritorio e da operacao.</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <label><span>Nome do escritorio</span><input type="text" formControlName="company_name" /></label>
+        <label><span>CNPJ / Documento</span><input type="text" formControlName="company_document" /></label>
+        <label><span>E-mail principal</span><input type="text" formControlName="company_email" /></label>
+        <label><span>Telefone</span><input type="text" formControlName="company_phone" /></label>
+        <label><span>E-mail de cobranca</span><input type="text" formControlName="billing_email" /></label>
+        <label><span>URL da logo</span><input type="text" formControlName="logo_url" /></label>
+        <label><span>Fuso horario</span><input type="text" formControlName="timezone" /></label>
+        <label><span>Idioma</span><input type="text" formControlName="locale" /></label>
+        <label><span>Moeda padrao</span><input type="text" formControlName="currency" /></label>
+        <label><span>Limite de armazenamento (MB)</span><input type="number" formControlName="storage_limit_mb" /></label>
+        <label><span>Formato de data</span><input type="text" formControlName="date_format" /></label>
+        <label><span>Formato de hora</span><input type="text" formControlName="hour_format" /></label>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" formControlName="reminder_email_enabled" /> Habilitar lembrete de tarefas por e-mail</label>
+        <label><input type="checkbox" formControlName="allow_message_attachments" /> Permitir anexos nas comunicacoes</label>
+        <label><input type="checkbox" formControlName="show_tips" /> Exibir dicas do sistema</label>
+        <label><input type="checkbox" formControlName="dark_mode" /> Ativar modo escuro</label>
+      </div>
+      <button ejs-button cssClass="e-primary" (click)="save()" [disabled]="saving">Salvar alteracoes</button>
+    </article>
+  }
+
+  @if (sectionVisible('geral')) {
+    <article class="panel logo-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Logo e identidade visual</h2>
+          <p>Personalize a identidade visual do escritorio.</p>
+        </div>
+      </div>
+      <div class="logo-box">
+        <img [src]="form.value.logo_url || 'assets/jurisflow/logo_1.png'" alt="Logo JurisFlow" />
+      </div>
+      <div class="form-grid">
+        <label><span>Cor primaria</span><input type="text" formControlName="primary_color" /></label>
+        <label><span>Cor secundaria</span><input type="text" formControlName="secondary_color" /></label>
+        <label><span>Cor de destaque</span><input type="text" formControlName="accent_color" /></label>
+      </div>
+      <button ejs-button cssClass="e-primary" (click)="save()" [disabled]="saving">Salvar identidade</button>
+    </article>
+  }
+
+  @if (sectionVisible('agenda')) {
+    <article class="panel" #settingsSection data-section="agenda">
+      <div class="panel-head">
+        <div>
+          <h2>Configuracoes da agenda</h2>
+          <p>Defina preferencias padrao para criacao, prazos e acompanhamento dos itens da agenda.</p>
+        </div>
+        <button class="ghost-button" type="button" (click)="openAgenda()">Abrir agenda</button>
+      </div>
+      <div class="form-grid">
+        <label><span>Prioridade padrao</span><input type="text" formControlName="default_task_priority" /></label>
+        <label><span>Status padrao</span><input type="text" formControlName="default_task_status" /></label>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" formControlName="notify_task_by_email" /> Enviar notificacao ao criar item da agenda</label>
+        <label><input type="checkbox" formControlName="show_tips" /> Exibir orientacoes na operacao diaria</label>
+      </div>
+      <button ejs-button cssClass="e-primary" (click)="save()" [disabled]="saving">Salvar agenda</button>
+    </article>
+  }
+
+  @if (sectionVisible('comunicacao')) {
+    <article class="panel" #settingsSection data-section="comunicacao">
+      <div class="panel-head">
+        <div>
+          <h2>Configuracoes de comunicacao</h2>
+          <p>Padronize assinatura e canais preferenciais do escritorio.</p>
+        </div>
+        <button class="ghost-button" type="button" (click)="openCommunications()">Abrir comunicacoes</button>
+      </div>
+      <div class="form-grid single-column">
+        <label><span>Assinatura padrao</span><textarea rows="4" formControlName="communication_signature"></textarea></label>
+      </div>
+      <div class="checks inline-checks">
+        <label><input type="checkbox" formControlName="communication_channels_email" /> E-mail</label>
+        <label><input type="checkbox" formControlName="communication_channels_sms" /> SMS</label>
+        <label><input type="checkbox" formControlName="communication_channels_whatsapp" /> WhatsApp</label>
+        <label><input type="checkbox" formControlName="communication_channels_correspondence" /> Correspondencia</label>
+      </div>
+      <button ejs-button cssClass="e-primary" (click)="save()" [disabled]="saving">Salvar comunicacao</button>
+    </article>
+  }
+
+  @if (sectionVisible('seguranca')) {
+    <article class="panel" #settingsSection data-section="seguranca">
+      <div class="panel-head">
+        <div>
+          <h2>Seguranca e acesso</h2>
+          <p>Configure politicas basicas de acesso e sessao.</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <label><span>Politica de senha</span><input type="text" formControlName="password_policy" /></label>
+        <label><span>Sessao expira apos</span><input type="text" formControlName="session_timeout" /></label>
+        <label><span>Tentativas de login</span><input type="text" formControlName="login_attempts" /></label>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" formControlName="two_factor_enabled" /> Autenticacao em dois fatores (2FA)</label>
+      </div>
+      <button ejs-button cssClass="e-primary" (click)="save()" [disabled]="saving">Salvar seguranca</button>
+    </article>
+  }
+
+  @if (sectionVisible('integracoes')) {
+    <article class="panel" #settingsSection data-section="integracoes">
+      <div class="panel-head">
+        <div>
+          <h2>Integracoes ativas</h2>
+          <p>Conecte o JurisFlow com outras ferramentas e servicos.</p>
+        </div>
+        <button class="ghost-button" type="button" (click)="openIntegrationsHub()">Gerenciar integracoes</button>
+      </div>
+      <div class="integration-grid">
+        <button type="button" (click)="openGoogleCalendarSetup()"><strong>Google Calendar</strong><span>Integracao por link e .ics</span></button>
+        <button type="button" (click)="openOutlookCalendarSetup()"><strong>Outlook Calendar</strong><span>Integracao por link e .ics</span></button>
+        <button type="button" (click)="openCommunications()"><strong>WhatsApp Business</strong><span>Conectado</span></button>
+        <button type="button" (click)="openDocuments()"><strong>Microsoft 365</strong><span>Modelos e documentos</span></button>
+        <button type="button" (click)="openFinancial()"><strong>Contmatic</strong><span>Integracao financeira planejada</span></button>
+      </div>
+      @if (loading || message) {
+        <p class="form-feedback">{{ loading ? 'Carregando configuracoes...' : message }}</p>
+      }
+    </article>
+  }
+
+  @if (sectionVisible('usuarios')) {
+    <article class="panel" #settingsSection data-section="usuarios">
+      <div class="panel-head">
+        <div>
+          <h2>Usuarios e permissoes</h2>
+          <p>Gerencie acessos, perfis e matriz de autorizacao.</p>
+        </div>
+      </div>
+      <div class="integration-grid action-grid">
+        <button class="ghost-button" type="button" (click)="openUsers()">Abrir usuarios</button>
+        <button class="ghost-button" type="button" (click)="openRoles()">Abrir perfis e permissoes</button>
+        <button class="ghost-button" type="button" (click)="openDocumentTemplates()">Modelos de documento</button>
+        <button class="ghost-button" type="button" (click)="openMessageTemplates()">Modelos de comunicacao</button>
+        <button class="ghost-button" type="button" (click)="openFinancial()">Configuracoes financeiras</button>
+      </div>
+    </article>
+  }
+</section>

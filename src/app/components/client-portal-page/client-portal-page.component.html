@@ -1,0 +1,205 @@
+<section class="portal-layout">
+  <aside class="portal-brand">
+    <div class="portal-brand-card">
+      <span class="eyebrow">Portal do cliente</span>
+      <h1>Acompanhe seu caso com clareza e seguranca.</h1>
+      <p>
+        Consulte processos, documentos, compromissos e comunicacoes do escritorio em um unico lugar.
+      </p>
+
+      <div class="feature-list">
+        <article>
+          <strong>Agenda e proximos passos</strong>
+          <span>Veja audiencias, retornos e compromissos vinculados ao seu atendimento.</span>
+        </article>
+        <article>
+          <strong>Documentos organizados</strong>
+          <span>Acesse arquivos ja enviados, procuracoes, contratos e anexos relacionados ao seu caso.</span>
+        </article>
+        <article>
+          <strong>Comunicacoes centralizadas</strong>
+          <span>Revise mensagens, atualizacoes e confirmacoes registradas pelo escritorio.</span>
+        </article>
+      </div>
+    </div>
+  </aside>
+
+  <main class="portal-main">
+    @if (!portalData) {
+      <div class="portal-card">
+        <div class="portal-head">
+          <h2>{{ companyName }}</h2>
+          <p>Use seus dados cadastrados no escritorio para acessar o acompanhamento do seu atendimento.</p>
+        </div>
+
+        @if (loading) {
+          <div class="state-box neutral">Carregando dados do escritorio...</div>
+        } @else {
+          <form [formGroup]="form" class="portal-form" (ngSubmit)="accessPortal()">
+            <label>
+              <span>E-mail</span>
+              <input type="email" formControlName="email" placeholder="voce@email.com" />
+            </label>
+
+            <div class="grid-two">
+              <label>
+                <span>CPF / CNPJ</span>
+                <input type="text" formControlName="document" placeholder="Documento cadastrado" />
+              </label>
+
+              <label>
+                <span>Telefone</span>
+                <input type="text" formControlName="phone" placeholder="Telefone cadastrado" />
+              </label>
+            </div>
+
+            @if (errorMessage) {
+              <div class="state-box danger">{{ errorMessage }}</div>
+            }
+
+            <button ejs-button cssClass="e-primary submit-button" [disabled]="authenticating || !company">
+              {{ authenticating ? 'Validando...' : 'Acessar portal' }}
+            </button>
+          </form>
+        }
+      </div>
+    } @else {
+      <div class="portal-card summary-card">
+        <div class="portal-head">
+          <div>
+            <h2>{{ companyName }}</h2>
+            <p>Portal do cliente para {{ portalData.client?.name }}</p>
+          </div>
+          <button class="ghost-button" (click)="portalData = null">Sair do portal</button>
+        </div>
+
+        <section class="summary-grid">
+          <article>
+            <span>Cliente</span>
+            <strong>{{ portalData.client?.name }}</strong>
+            <small>{{ portalData.client?.email || portalData.client?.phone || portalData.client?.document }}</small>
+          </article>
+          <article>
+            <span>Processos</span>
+            <strong>{{ portalData.cases?.length || 0 }}</strong>
+            <small>{{ portalData.summary?.active_cases || 0 }} ativos</small>
+          </article>
+          <article>
+            <span>Documentos</span>
+            <strong>{{ portalData.documents?.length || 0 }}</strong>
+            <small>{{ portalData.summary?.documents_available || 0 }} disponiveis</small>
+          </article>
+          <article>
+            <span>Itens da agenda</span>
+            <strong>{{ portalData.agenda_items?.length || 0 }}</strong>
+            <small>compromissos e tarefas</small>
+          </article>
+        </section>
+
+        <section class="portal-section executive-strip">
+          <article class="executive-card">
+            <span>Resumo executivo</span>
+            <p>{{ portalData.summary?.executive_summary }}</p>
+          </article>
+          <article class="executive-card highlight">
+            <span>Proximo passo</span>
+            @if (portalData.summary?.next_item) {
+              <strong>{{ portalData.summary?.next_item?.title }}</strong>
+              <small>{{ portalData.summary?.next_item?.date_ref || 'Data em definicao' }}</small>
+            } @else {
+              <strong>Nenhum compromisso futuro</strong>
+              <small>O escritorio ainda nao registrou novo item de agenda</small>
+            }
+          </article>
+          <article class="executive-card">
+            <span>Ultima comunicacao</span>
+            @if (portalData.summary?.latest_message) {
+              <strong>{{ portalData.summary?.latest_message?.subject || 'Comunicacao' }}</strong>
+              <small>{{ portalData.summary?.latest_message?.sent_at || portalData.summary?.latest_message?.created_at }}</small>
+            } @else {
+              <strong>Sem comunicacao recente</strong>
+              <small>Nenhuma atualizacao registrada ate o momento</small>
+            }
+          </article>
+        </section>
+
+        <section class="portal-section summary-grid">
+          <article>
+            <span>Mensagens registradas</span>
+            <strong>{{ portalData.summary?.messages_count || 0 }}</strong>
+            <small>historico de comunicacoes</small>
+          </article>
+          <article>
+            <span>Agenda consolidada</span>
+            <strong>{{ portalData.summary?.agenda_count || 0 }}</strong>
+            <small>itens planejados</small>
+          </article>
+        </section>
+
+        <section class="portal-section">
+          <header><h3>Processos</h3></header>
+          <div class="content-list">
+            @for (item of portalData.cases || []; track item.id) {
+              <article class="content-card">
+                <strong>{{ item.title }}</strong>
+                <span>{{ item.case_number || 'Sem numero informado' }}</span>
+                <small>{{ item.area }} | {{ item.status }}</small>
+              </article>
+            } @empty {
+              <div class="empty-state">Nenhum processo vinculado ate o momento.</div>
+            }
+          </div>
+        </section>
+
+        <section class="portal-section two-column">
+          <div>
+            <header><h3>Documentos</h3></header>
+            <div class="content-list">
+              @for (item of portalData.documents || []; track item.id) {
+                <article class="content-card">
+                  <strong>{{ item.title }}</strong>
+                  <span>{{ item.file_type || 'Arquivo' }}</span>
+                  @if (item.file_url) {
+                    <a [href]="item.file_url" target="_blank" rel="noopener">Abrir arquivo</a>
+                  }
+                </article>
+              } @empty {
+                <div class="empty-state">Nenhum documento liberado.</div>
+              }
+            </div>
+          </div>
+
+          <div>
+            <header><h3>Comunicacoes</h3></header>
+            <div class="content-list">
+              @for (item of portalData.messages || []; track item.id) {
+                <article class="content-card">
+                  <strong>{{ item.subject || 'Comunicacao' }}</strong>
+                  <span>{{ item.channel }} | {{ item.status }}</span>
+                  <small>{{ item.sent_at || item.created_at }}</small>
+                </article>
+              } @empty {
+                <div class="empty-state">Nenhuma comunicacao registrada.</div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="portal-section">
+          <header><h3>Agenda e proximos passos</h3></header>
+          <div class="content-list">
+            @for (item of portalData.agenda_items || []; track item.id) {
+              <article class="content-card">
+                <strong>{{ item.title }}</strong>
+                <span>{{ item.item_kind === 'task' ? 'Tarefa' : 'Compromisso' }} | {{ item.status }}</span>
+                <small>{{ item.date_ref || 'Data em definicao' }}</small>
+              </article>
+            } @empty {
+              <div class="empty-state">Nenhum item de agenda vinculado.</div>
+            }
+          </div>
+        </section>
+      </div>
+    }
+  </main>
+</section>

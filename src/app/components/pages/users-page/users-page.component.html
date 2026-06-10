@@ -1,0 +1,97 @@
+<section class="page-head">
+  <div>
+    <h1>Usuarios</h1>
+    <p>Gerencie os acessos da equipe, acompanhe status e mantenha os perfis do escritorio atualizados.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/configuracoes">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="openCreate()">Novo usuario</button>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando usuarios...</div></section>
+} @else {
+  <section class="stats-grid">
+    <article class="stat-card">
+      <strong>{{ users.length }}</strong>
+      <span>Total de usuarios</span>
+    </article>
+    <article class="stat-card">
+      <strong>{{ activeCount }}</strong>
+      <span>Usuarios ativos</span>
+    </article>
+    <article class="stat-card">
+      <strong>{{ inactiveCount }}</strong>
+      <span>Usuarios inativos</span>
+    </article>
+  </section>
+
+  @if (roleFilterLabel) {
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Contexto ativo</h2>
+          <p>{{ roleFilterLabel }}</p>
+        </div>
+        <button class="ghost-button" type="button" (click)="clearRoleFilter()">Limpar filtro</button>
+      </div>
+    </section>
+  }
+
+  <section class="panel filters-panel">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar usuario..." />
+    </div>
+
+    <div class="segmented">
+      <button type="button" [class.active]="statusFilter === 'todos'" (click)="setStatusFilter('todos')">Todos</button>
+      <button type="button" [class.active]="statusFilter === 'ativos'" (click)="setStatusFilter('ativos')">Ativos</button>
+      <button type="button" [class.active]="statusFilter === 'inativos'" (click)="setStatusFilter('inativos')">Inativos</button>
+    </div>
+  </section>
+
+  @if (errorMessage) {
+    <section class="panel"><div class="error-box">{{ errorMessage }}</div></section>
+  }
+
+  <section class="panel table-panel">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>E-mail</th>
+          <th>Perfil</th>
+          <th>Status</th>
+          <th>Acoes</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of filteredUsers; track user.id) {
+          <tr>
+            <td>{{ user.name || '-' }}</td>
+            <td>{{ user.email || '-' }}</td>
+            <td><button type="button" class="linkish" (click)="openRole(user)">{{ user.role_name || user.role_id || '-' }}</button></td>
+            <td><span class="status-pill">{{ statusLabel(user) }}</span></td>
+            <td class="actions-cell">
+              <button type="button" class="icon-action" (click)="openEdit(user)" title="Editar usuario"><i class="pi pi-pencil"></i></button>
+              <button type="button" class="icon-action danger" (click)="requestRemove(user)" title="Excluir usuario"><i class="pi pi-trash"></i></button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="5">Nenhum usuario encontrado para os filtros atuais.</td></tr>
+        }
+      </tbody>
+    </table>
+  </section>
+}
+
+<app-confirm-dialog
+  [visible]="!!pendingRemoval"
+  title="Excluir usuario"
+  [message]="'Deseja excluir o usuario ' + (pendingRemoval?.name || 'selecionado') + '? Esta acao nao pode ser desfeita.'"
+  confirmLabel="Excluir usuario"
+  (cancel)="cancelRemove()"
+  (confirm)="confirmRemove()"
+/>

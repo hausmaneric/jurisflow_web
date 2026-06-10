@@ -1,0 +1,56 @@
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(8, 18, 34, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.confirm-card {
+  width: min(100%, 30rem);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, #f8fbff 100%);
+  border: 1px solid rgba(13, 27, 42, 0.1);
+  border-radius: 1.6rem;
+  box-shadow: 0 30px 70px rgba(13, 31, 59, 0.2);
+  padding: 1.5rem;
+}
+
+.confirm-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(180deg, #fff2dd 0%, #ffe8c0 100%);
+  color: var(--juris-warning);
+  font-size: 1.25rem;
+}
+
+.confirm-copy h3 {
+  margin: 0;
+  color: var(--juris-navy);
+  font-size: 1.25rem;
+}
+
+.confirm-copy p {
+  margin: 0.5rem 0 0;
+  color: var(--juris-text-soft);
+  line-height: 1.55;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.35rem;
+}
+
+@media (max-width: 720px) {
+  .confirm-actions {
+    flex-direction: column-reverse;
+  }
+}

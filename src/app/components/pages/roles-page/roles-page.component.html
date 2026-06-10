@@ -1,0 +1,108 @@
+<section class="page-head">
+  <div>
+    <h1>Perfis e permissoes</h1>
+    <p>Gerencie os perfis cadastrados e a matriz de acesso da plataforma.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/configuracoes">Voltar</a>
+    <a class="ghost-button" routerLink="/plataforma/usuarios">Usuarios</a>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando perfis...</div></section>
+} @else if (errorMessage) {
+  <section class="panel"><div class="error-box">{{ errorMessage }}</div></section>
+} @else {
+  <section class="detail-layout">
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Perfis</h2><p>Selecione um perfil para revisar e ajustar as permissoes.</p></div>
+      </div>
+      <div class="roles-list">
+        @for (role of roles; track role.id) {
+          <button
+            type="button"
+            class="role-card"
+            [class.active]="role.id === selectedRoleId"
+            (click)="selectRole(role.id)"
+          >
+            <div>
+              <strong>{{ role.name || '-' }}</strong>
+              <span>{{ role.code || '-' }}</span>
+            </div>
+            <small>{{ countForRole(role.id) }} permissoes</small>
+          </button>
+        } @empty {
+          <div class="empty-state">Nenhum perfil cadastrado.</div>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Permissoes</h2>
+          <p>
+            @if (selectedRole) {
+              Ajuste os acessos do perfil <strong>{{ selectedRole.name || selectedRole.code }}</strong>.
+            } @else {
+              Selecione um perfil para visualizar a matriz de acessos.
+            }
+          </p>
+        </div>
+        <div class="header-actions">
+          <button class="ghost-button" type="button" (click)="openUsersForRole()" [disabled]="!selectedRole">Ver usuarios</button>
+          <button ejs-button cssClass="e-outline" (click)="load()" [disabled]="loading || saving">Atualizar</button>
+        </div>
+      </div>
+      @if (errorMessage || successMessage) {
+        <div class="feedback-stack">
+          @if (errorMessage) {
+            <div class="error-box">{{ errorMessage }}</div>
+          }
+          @if (successMessage) {
+            <div class="success-box">{{ successMessage }}</div>
+          }
+        </div>
+      }
+
+      @if (!selectedRole) {
+        <div class="empty-state">Selecione um perfil para gerenciar as permissoes.</div>
+      } @else {
+        <div class="permission-groups">
+          @for (group of groupedPermissions; track group.module) {
+            <section class="permission-group">
+              <header>
+                <h3>{{ group.module }}</h3>
+                <span>{{ group.items.length }} itens</span>
+              </header>
+
+              <div class="permission-grid">
+                @for (permission of group.items; track permission.id) {
+                  <label class="permission-chip" [class.enabled]="isGranted(permission.id)">
+                    <div class="permission-copy">
+                      <strong>{{ permission.name || permission.code || permission.id }}</strong>
+                      <span>{{ permission.code || 'permissao' }}</span>
+                      @if (permission.description) {
+                        <small>{{ permission.description }}</small>
+                      }
+                    </div>
+                    <input
+                      type="checkbox"
+                      [checked]="isGranted(permission.id)"
+                      [disabled]="saving"
+                      (change)="togglePermission(permission.id, $any($event.target).checked)"
+                    />
+                  </label>
+                }
+              </div>
+            </section>
+          } @empty {
+            <div class="empty-state">Nenhuma permissao cadastrada.</div>
+          }
+        </div>
+      }
+    </article>
+  </section>
+}

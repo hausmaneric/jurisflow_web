@@ -1,0 +1,240 @@
+<section class="page-head">
+  <div>
+    <h1>Financeiro</h1>
+    <p>Controle receitas, despesas, contas, pendencias e resultados do escritorio.</p>
+  </div>
+  <div class="header-actions">
+    <button class="ghost-button" type="button" (click)="reloadFinancialData()">{{ loading ? 'Atualizando...' : 'Atualizar' }}</button>
+    <button ejs-button cssClass="e-primary" (click)="openCreate()">Novo lancamento</button>
+  </div>
+</section>
+
+<section class="panel executive-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Leitura executiva do financeiro</h2>
+      <p>Saude financeira, alertas e recomendacoes operacionais do recorte atual.</p>
+    </div>
+  </div>
+  <div class="executive-top">
+    <div class="executive-score">
+      <span>Saude financeira</span>
+      <strong>{{ healthScore }}</strong>
+      <small>de 100 pontos</small>
+    </div>
+    <div class="executive-summary">
+      <span>Resumo executivo</span>
+      <p>{{ executiveSummary }}</p>
+    </div>
+  </div>
+  <div class="executive-metrics">
+    <div class="mini-card">
+      <span>Risco atual</span>
+      <strong>{{ riskLevel }}</strong>
+      <small>visao consolidada</small>
+    </div>
+    <div class="mini-card">
+      <span>Pendencias</span>
+      <strong>{{ pendingAmount }}</strong>
+      <small>{{ pendingEntriesCount }} titulo(s)</small>
+    </div>
+    <div class="mini-card">
+      <span>Margem estimada</span>
+      <strong>{{ marginPercentage }}%</strong>
+      <small>saldo sobre receitas</small>
+    </div>
+  </div>
+  <div class="executive-grid">
+    <div class="executive-card">
+      <strong>Alertas prioritarios</strong>
+      @for (item of financialAlerts; track item) {
+        <span>{{ item }}</span>
+      }
+    </div>
+    <div class="executive-card">
+      <strong>Recomendacoes</strong>
+      @for (item of financialRecommendations; track item) {
+        <span>{{ item }}</span>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="metrics-grid compact">
+  <article class="metric-card tone-green action-card" (click)="openFinancialModule()"><div class="metric-icon"><i class="pi pi-arrow-down"></i></div><div><span>Receitas apuradas</span><strong>{{ totalIncome }}</strong><small>{{ incomeEntries.length }} lancamentos positivos</small></div></article>
+  <article class="metric-card tone-red action-card" (click)="openFinancialModule()"><div class="metric-icon"><i class="pi pi-arrow-up"></i></div><div><span>Despesas apuradas</span><strong>{{ totalExpense }}</strong><small>{{ expenseEntries.length }} lancamentos negativos</small></div></article>
+  <article class="metric-card tone-blue action-card" (click)="openFinancialModule()"><div class="metric-icon"><i class="pi pi-wallet"></i></div><div><span>Saldo atual</span><strong>{{ balance }}</strong><small>Leitura consolidada atual</small></div></article>
+  <article class="metric-card tone-gold action-card" (click)="openFinancialModule()"><div class="metric-icon"><i class="pi pi-dollar"></i></div><div><span>Receitas</span><strong>{{ incomeEntries.length }}</strong><small>Base financeira ativa</small></div></article>
+  <article class="metric-card tone-purple action-card" (click)="openFinancialModule()"><div class="metric-icon"><i class="pi pi-credit-card"></i></div><div><span>Pendencias</span><strong>{{ pendingEntriesCount }}</strong><small>Titulos sem baixa final</small></div></article>
+</section>
+
+<section class="financial-detail-layout">
+  <article class="panel">
+    <div class="toolbar">
+      <div class="search-box">
+        <i class="pi pi-search"></i>
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar lancamentos..." />
+      </div>
+      <div class="toolbar-actions">
+        <select [(ngModel)]="typeFilter" (ngModelChange)="refreshSummary()">
+          <option value="todos">Tipo: Todos</option>
+          <option value="receita">Receitas</option>
+          <option value="despesa">Despesas</option>
+        </select>
+        <select [(ngModel)]="categoryFilter" (ngModelChange)="refreshSummary()">
+          <option value="todas">Categoria: Todas</option>
+          @for (category of categories; track category) {
+            <option [value]="category">{{ category }}</option>
+          }
+        </select>
+        <select [(ngModel)]="statusFilter" (ngModelChange)="refreshSummary()">
+          <option value="todos">Status: Todos</option>
+          <option value="recebido">Recebido</option>
+          <option value="pago">Pago</option>
+          <option value="atrasado">Atrasado</option>
+          <option value="pendente">Pendente</option>
+        </select>
+        <select [(ngModel)]="periodFilter" (ngModelChange)="refreshSummary()">
+          <option value="todos">Periodo: Todos</option>
+          <option value="mes_atual">Periodo: Este mes</option>
+          <option value="ultimos_30_dias">Periodo: Ultimos 30 dias</option>
+          <option value="hoje">Periodo: Hoje</option>
+        </select>
+      </div>
+    </div>
+    @if (errorMessage) {
+      <div class="error-box inline-error">{{ errorMessage }}</div>
+    }
+    <div class="table-shell">
+      <table class="juris-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Descricao</th>
+            <th>Tipo</th>
+            <th>Categoria</th>
+            <th>Cliente / Processo</th>
+            <th>Conta</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of filteredEntries; track entry.id || entry.descricao + entry.data; let i = $index) {
+            <tr [class.selected-row]="selectedEntry && selectedEntry.id === entry.id" (click)="selectEntry(i)">
+              <td>{{ entry.data }}</td>
+              <td><strong>{{ entry.descricao }}</strong></td>
+              <td><span class="tag soft">{{ entry.tipo }}</span></td>
+              <td>{{ entry.categoria }}</td>
+              <td><button class="linkish" (click)="openEntryContext(entry); $event.stopPropagation()">{{ entry.clienteProcesso }}</button></td>
+              <td>{{ entry.conta }}</td>
+              <td [class.negative]="entry.valor.startsWith('-')">{{ entry.valor }}</td>
+              <td><span class="status-pill">{{ entry.status }}</span></td>
+              <td>
+                <button class="icon-action" type="button" title="Editar lancamento" (click)="openEdit(entry); $event.stopPropagation()">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="icon-action danger" type="button" title="Remover lancamento" [disabled]="deletingId === entry.id" (click)="requestRemove(entry); $event.stopPropagation()">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9">Nenhum lancamento encontrado para os filtros atuais.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel detail-side-panel">
+    @if (selectedEntry) {
+      <div class="panel-head">
+        <div>
+          <h2>{{ selectedEntry.descricao }}</h2>
+          <p>{{ selectedEntry.tipo }} - {{ selectedEntry.status }}</p>
+        </div>
+      </div>
+      <div class="info-list">
+        <div><span>Valor</span><strong [class.negative]="selectedEntry.valor.startsWith('-')">{{ selectedEntry.valor }}</strong></div>
+        <div><span>Data</span><strong>{{ selectedEntry.data }}</strong></div>
+        <div><span>Categoria</span><strong>{{ selectedEntry.categoria }}</strong></div>
+        <div><span>Conta</span><strong>{{ selectedEntry.conta }}</strong></div>
+        <div><span>Contexto</span><strong>{{ selectedEntry.clienteProcesso || 'Nao vinculado' }}</strong></div>
+      </div>
+      <div class="notes-box">
+        <span>Observacoes</span>
+        <p>{{ selectedEntry.notes || 'Nenhuma observacao registrada para este lancamento.' }}</p>
+      </div>
+      <div class="toolbar-actions">
+        <button class="ghost-button" type="button" (click)="openEntryContext(selectedEntry)">Abrir contexto</button>
+        <button class="ghost-button" type="button" (click)="openEdit(selectedEntry)">Editar lancamento</button>
+      </div>
+    } @else {
+      <div class="empty-state">Selecione um lancamento para visualizar os detalhes.</div>
+    }
+  </article>
+</section>
+
+<app-confirm-dialog
+  [visible]="!!pendingRemoval"
+  title="Excluir lancamento"
+  [message]="removalMessage"
+  confirmLabel="Excluir lancamento"
+  [busy]="!!deletingId"
+  (cancel)="cancelRemove()"
+  (confirm)="confirmRemove()"
+/>
+
+<section class="triple-grid">
+  <article class="panel">
+    <div class="panel-head">
+      <div><h2>Contas bancarias</h2><p>Saldo consolidado da operacao filtrada</p></div>
+      <button class="ghost-button">Nova conta</button>
+    </div>
+    <div class="list-rows">
+      @for (account of topAccounts; track account.conta) {
+        <button class="list-row action-row" type="button" (click)="openFinancialModule()">
+          <strong>{{ account.conta }}</strong>
+          <span>Movimentacao consolidada</span>
+          <small [class.negative]="account.raw < 0">{{ account.total }}</small>
+        </button>
+      } @empty {
+        <div><strong>Sem contas</strong><span>Nenhum dado para o filtro atual</span><small>R$ 0,00</small></div>
+      }
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div><h2>Relatorio financeiro</h2><p>Resumo gerencial da base carregada</p></div>
+      <button class="ghost-button" type="button" (click)="exportFinancialReport()">Exportar relatorio</button>
+    </div>
+    <div class="bar-chart">
+      <div><span>Receitas</span><i [style.height]="incomeBarHeight"></i><b style="height: 0%"></b></div>
+      <div><span>Despesas</span><i style="height: 0%"></i><b [style.height]="expenseBarHeight"></b></div>
+      <div><span>Saldo</span><i [style.height]="balanceBarHeight"></i><b style="height: 0%"></b></div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div><h2>Resumo por categoria</h2><p>Leitura rapida da composicao financeira</p></div>
+      <button class="ghost-button" (click)="openCategories()">Categorias</button>
+    </div>
+    <div class="list-rows">
+      @for (category of categoryBreakdown; track category.categoria) {
+        <button class="list-row action-row" type="button" (click)="openCategories()">
+          <strong>{{ category.categoria }}</strong>
+          <span [class.negative]="category.raw < 0">{{ category.total }}</span>
+          <small>{{ category.count }} lancamentos</small>
+        </button>
+      } @empty {
+        <div><strong>Sem categorias</strong><span>R$ 0,00</span><small>Nenhum dado filtrado</small></div>
+      }
+    </div>
+  </article>
+</section>

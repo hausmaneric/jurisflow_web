@@ -1,0 +1,250 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Automação, transcrição e operações jurídicas</p>
+    <h1>Inteligência</h1>
+    <span>Centralize anotações, transcrições sem OpenAI, resumos locais, integrações e sincronizações processuais.</span>
+  </div>
+  <button class="primary-button" type="button" (click)="load()" [disabled]="loading">
+    <i class="pi pi-refresh"></i>
+    Atualizar
+  </button>
+</section>
+
+<p class="feedback" *ngIf="message">{{ message }}</p>
+
+<section class="metric-grid">
+  <article class="metric-card" *ngFor="let card of cards" [class]="card.tone">
+    <div class="metric-icon"><i [class]="card.icon"></i></div>
+    <div>
+      <span>{{ card.label }}</span>
+      <strong>{{ card.value }}</strong>
+      <small>{{ card.helper }}</small>
+    </div>
+  </article>
+</section>
+
+<section class="workspace-grid">
+  <article class="panel form-panel">
+    <div class="panel-title">
+      <div>
+        <h2>Nova anotação</h2>
+        <p>Registre atendimento, observação processual ou nota interna.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="noteForm" (ngSubmit)="createNote()">
+      <label>
+        Título
+        <input formControlName="title" placeholder="Ex.: Reunião com cliente" />
+      </label>
+      <label>
+        Conteúdo
+        <textarea formControlName="content" rows="5" placeholder="Escreva os pontos principais..."></textarea>
+      </label>
+      <div class="field-row">
+        <label>
+          Tipo
+          <select formControlName="type">
+            <option value="atendimento">Atendimento</option>
+            <option value="processo">Processo</option>
+            <option value="estrategia">Estratégia</option>
+            <option value="interno">Interno</option>
+          </select>
+        </label>
+        <label>
+          Visibilidade
+          <select formControlName="visibility">
+            <option value="internal">Interna</option>
+            <option value="team">Equipe</option>
+            <option value="client">Portal do cliente</option>
+          </select>
+        </label>
+      </div>
+      <button class="primary-button full" type="submit" [disabled]="saving">Salvar anotação</button>
+    </form>
+  </article>
+
+  <article class="panel form-panel">
+    <div class="panel-title">
+      <div>
+        <h2>Nova transcrição</h2>
+        <p>Prepare uma transcrição para reunião, audiência ou chamada.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="transcriptionForm" (ngSubmit)="createTranscription()">
+      <label>
+        Título
+        <input formControlName="title" placeholder="Ex.: Audiência trabalhista" />
+      </label>
+      <div class="field-row">
+        <label>
+          Origem
+          <select formControlName="source">
+            <option value="meeting">Reunião</option>
+            <option value="hearing">Audiência</option>
+            <option value="call">Ligação</option>
+            <option value="upload">Arquivo enviado</option>
+          </select>
+        </label>
+        <label>
+          Tipo
+          <select formControlName="transcription_type">
+            <option value="meeting">Reunião</option>
+            <option value="hearing">Audiência</option>
+            <option value="client_service">Atendimento</option>
+          </select>
+        </label>
+      </div>
+      <label class="checkline">
+        <input type="checkbox" formControlName="consent_confirmed" />
+        Consentimento de gravação confirmado
+      </label>
+      <button class="primary-button full" type="submit" [disabled]="saving">Criar transcrição</button>
+    </form>
+  </article>
+</section>
+
+<section class="content-grid">
+  <article class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Transcrições recentes</h2>
+        <p>Conduza gravação, processamento, resumo local e tarefas sem sair da tela.</p>
+      </div>
+    </div>
+
+    <div class="runtime-card">
+      <strong>Motor de transcrição</strong>
+      <span>{{ runtimeEnvironment?.transcription_provider === 'whisper_worker' ? 'Worker Whisper próprio' : 'Manual com pós-processamento local' }}</span>
+      <small>{{ runtimeEnvironment?.whisper_worker_configured ? 'Worker configurado e pronto para receber arquivos.' : 'Sem OpenAI: use transcrição manual ou configure um worker Whisper próprio.' }}</small>
+      <small>Formato manual recomendado: uma fala por linha, como "João: expliquei a estratégia" ou "[00:15] Cliente: entendi o prazo".</small>
+    </div>
+
+    <div class="list-table" *ngIf="transcriptions.length; else emptyTranscriptions">
+      <div class="list-row" *ngFor="let item of transcriptions">
+        <div>
+          <strong>{{ item.title }}</strong>
+          <span>{{ item.source || 'origem não informada' }} · {{ item.status }}</span>
+          <label class="inline-upload">
+            <input type="file" accept="audio/*,video/*" (change)="uploadAudio(item, $event)" />
+            Enviar áudio/vídeo
+          </label>
+          <textarea
+            class="manual-transcript"
+            rows="5"
+            [(ngModel)]="manualTranscripts[item.id]"
+            placeholder="Ex.:
+[00:00] Advogado: Boa tarde, vamos revisar os próximos passos.
+[00:12] Cliente: Perfeito, minha dúvida é sobre o prazo.
+[00:28] Advogado: Vamos protocolar a manifestação até sexta-feira."
+          ></textarea>
+          <div class="speech-list" *ngIf="transcriptionSegments[item.id]?.length">
+            <div class="speech-item" *ngFor="let segment of transcriptionSegments[item.id]">
+              <div class="speech-meta">
+                <input [(ngModel)]="segment.speaker_label" placeholder="Quem falou" />
+                <span>{{ formatSegmentTime(segment.start_seconds) }} - {{ formatSegmentTime(segment.end_seconds) }}</span>
+                <small>{{ segment.reviewed ? 'Revisado' : 'Pendente de revisão' }}</small>
+              </div>
+              <textarea [(ngModel)]="segment.text" rows="3" placeholder="Texto da fala"></textarea>
+              <button class="segment-save" type="button" (click)="reviewSegment(item, segment)" [disabled]="saving">Salvar revisão da fala</button>
+            </div>
+          </div>
+        </div>
+        <div class="row-actions">
+          <button type="button" (click)="startRecording(item)">Iniciar</button>
+          <button type="button" (click)="processWithWhisperWorker(item)" [disabled]="!runtimeEnvironment?.whisper_worker_configured">Processar Whisper</button>
+          <button type="button" (click)="processManual(item)">Processar manual</button>
+          <button type="button" (click)="finalizeTranscription(item)">Resumir e finalizar</button>
+          <button type="button" (click)="exportTranscriptionNote(item)">Gerar anotação</button>
+          <button type="button" (click)="exportTranscriptionDocument(item)">Gerar documento</button>
+        </div>
+      </div>
+    </div>
+    <ng-template #emptyTranscriptions>
+      <p class="empty">Nenhuma transcrição cadastrada ainda.</p>
+    </ng-template>
+  </article>
+
+  <article class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Anotações recentes</h2>
+        <p>Histórico de conhecimento operacional do escritório.</p>
+      </div>
+    </div>
+    <div class="note-list" *ngIf="notes.length; else emptyNotes">
+      <div class="note-card" *ngFor="let note of notes">
+        <span>{{ note.type }}</span>
+        <strong>{{ note.title }}</strong>
+        <p>{{ note.content }}</p>
+      </div>
+    </div>
+    <ng-template #emptyNotes>
+      <p class="empty">Nenhuma anotação cadastrada ainda.</p>
+    </ng-template>
+  </article>
+</section>
+
+<section class="content-grid lower">
+  <article class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Sincronizações processuais</h2>
+        <p>DataJud, tribunais e conectores externos.</p>
+      </div>
+    </div>
+    <div class="compact-list">
+      <div *ngFor="let log of syncLogs">
+        <strong>{{ log.source }}</strong>
+        <span>{{ log.status }} · {{ log.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <p class="empty" *ngIf="!syncLogs.length">Nenhuma sincronização registrada.</p>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Resumos locais</h2>
+        <p>Pontos-chave, riscos e próximos passos auditáveis sem OpenAI.</p>
+      </div>
+    </div>
+    <div class="compact-list">
+      <div *ngFor="let insight of aiSummaries">
+        <strong>{{ insight.summary_type || insight.entity }}</strong>
+        <span>{{ insight.summary }}</span>
+      </div>
+      <p class="empty" *ngIf="!aiSummaries.length">Nenhum resumo gerado ainda.</p>
+    </div>
+  </article>
+
+  <article class="panel integration-panel">
+    <div class="panel-title">
+      <div>
+        <h2>Webhooks e API</h2>
+        <p>Base para WhatsApp oficial, assinatura digital, calendário e BI.</p>
+      </div>
+    </div>
+    <form [formGroup]="webhookForm" (ngSubmit)="createWebhook()">
+      <label>
+        Nome
+        <input formControlName="name" />
+      </label>
+      <label>
+        URL
+        <input formControlName="target_url" />
+      </label>
+      <label>
+        Eventos
+        <input formControlName="events" />
+      </label>
+      <button class="primary-button full" type="submit" [disabled]="saving">Criar webhook</button>
+    </form>
+    <div class="integration-status">
+      <span>{{ webhooks.length }} webhooks</span>
+      <span>{{ apiTokens.length }} tokens</span>
+      <span>{{ automationRules.length }} automações</span>
+    </div>
+  </article>
+</section>

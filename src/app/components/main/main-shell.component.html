@@ -1,0 +1,79 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/jurisflow/logo.png" alt="JurisFlow" />
+    </div>
+
+    <nav class="menu">
+      @for (item of data.navItems; track item.route) {
+        <a [routerLink]="item.route" class="menu-item" [class.active]="isActive(item.route)">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+          @if (item.badge) {
+            <span class="badge">{{ item.badge }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <section class="office-card">
+      <h4>{{ data.user.office }}</h4>
+      <p>Advocacia e Consultoria</p>
+      <span>{{ data.user.plan }}</span>
+      <button type="button" class="office-link" (click)="openPlansAndLimits()">Ver planos e limites</button>
+    </section>
+
+    <footer class="sidebar-user" (click)="logout()">
+      <div class="avatar">{{ data.user.avatar }}</div>
+      <div>
+        <strong>{{ data.user.name }}</strong>
+        <span>{{ data.user.role }}</span>
+      </div>
+      <i class="pi pi-angle-down"></i>
+    </footer>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <button class="icon-button">
+        <i class="pi pi-bars"></i>
+      </button>
+
+      <div class="search-shell">
+        <i class="pi pi-search"></i>
+        <input type="text" [(ngModel)]="searchTerm" (keydown.enter)="runSearch()" placeholder="Buscar clientes, processos, documentos..." />
+      </div>
+
+      <div class="topbar-actions">
+        <div class="quick-actions">
+          <button class="primary-action" type="button" (click)="toggleQuickActions()">
+          <i class="pi pi-plus"></i>
+          <span>Novo</span>
+          <i class="pi pi-angle-down"></i>
+          </button>
+
+          @if (quickActionsOpen) {
+            <div class="quick-actions-menu">
+              @for (action of quickActions; track action.route) {
+                <button type="button" (click)="goTo(action.route)">
+                  <strong>{{ action.label }}</strong>
+                  <span>{{ action.description }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+        <button class="icon-button badge-dot"><i class="pi pi-bell"></i><span>5</span></button>
+        <button class="icon-button badge-dot"><i class="pi pi-envelope"></i><span>3</span></button>
+        <div class="topbar-profile">
+          <div class="avatar small">{{ data.user.avatar }}</div>
+          <i class="pi pi-angle-down"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-router">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

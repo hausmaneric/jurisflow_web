@@ -1,0 +1,98 @@
+<section class="page-head">
+  <div>
+    <h1>{{ isEdit ? 'Cliente' : 'Novo cliente' }}</h1>
+    <p>{{ isEdit ? 'Edite os dados cadastrais, observações e situação do cliente.' : 'Cadastre um novo cliente no JurisFlow.' }}</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/clientes">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="save()">{{ saving ? 'Salvando...' : 'Salvar' }}</button>
+  </div>
+</section>
+
+<section class="detail-layout">
+  <article class="panel form-card">
+    @if (loading) {
+      <div class="empty-state">Carregando cliente...</div>
+    } @else {
+      <form [formGroup]="form" class="form-grid">
+        <label>
+          <span>Tipo de pessoa</span>
+          <ejs-dropdownlist [dataSource]="personTypeOptions" [fields]="{ text: 'label', value: 'value' }" formControlName="type"></ejs-dropdownlist>
+        </label>
+
+        <label>
+          <span>Nome completo</span>
+          <ejs-textbox cssClass="juris-input" formControlName="name" placeholder="Nome do cliente"></ejs-textbox>
+        </label>
+
+        <label>
+          <span>Documento</span>
+          <ejs-textbox cssClass="juris-input" formControlName="document" placeholder="CPF ou CNPJ"></ejs-textbox>
+        </label>
+
+        <label>
+          <span>RG / IE</span>
+          <ejs-textbox cssClass="juris-input" formControlName="rg_ie" placeholder="RG, IE ou documento complementar"></ejs-textbox>
+        </label>
+
+        <label>
+          <span>E-mail</span>
+          <ejs-textbox cssClass="juris-input" formControlName="email" placeholder="cliente@email.com"></ejs-textbox>
+        </label>
+
+        <label>
+          <span>Telefone / WhatsApp</span>
+          <ejs-textbox cssClass="juris-input" formControlName="phone" placeholder="(11) 99999-9999"></ejs-textbox>
+        </label>
+
+        <label>
+          <span>Data de nascimento</span>
+          <input type="date" formControlName="birth_date" />
+        </label>
+
+        <label>
+          <span>Estado civil</span>
+          <ejs-dropdownlist [dataSource]="civilStatusOptions" formControlName="civil_status"></ejs-dropdownlist>
+        </label>
+
+        <label>
+          <span>Profissao / atividade</span>
+          <ejs-textbox cssClass="juris-input" formControlName="profession" placeholder="Profissao ou ramo de atividade"></ejs-textbox>
+        </label>
+
+        <label>
+          <span>Origem</span>
+          <ejs-dropdownlist [dataSource]="originOptions" formControlName="origin"></ejs-dropdownlist>
+        </label>
+
+        <label>
+          <span>Status</span>
+          <ejs-dropdownlist [dataSource]="statusOptions" formControlName="status"></ejs-dropdownlist>
+        </label>
+
+        <label class="full">
+          <span>Observações</span>
+          <textarea rows="6" formControlName="notes" placeholder="Resumo do cliente, origem, histórico e observações importantes..."></textarea>
+        </label>
+      </form>
+    }
+
+    @if (errorMessage) {
+      <div class="error-box">{{ errorMessage }}</div>
+    }
+  </article>
+
+  <article class="panel side-card">
+    <div class="avatar-big">CL</div>
+    <h2>{{ form.value.name || 'Novo cliente' }}</h2>
+    <div class="pill-row">
+      <span class="status-pill">{{ form.value.status || 'active' }}</span>
+      <span class="tag soft">{{ form.value.type === 'company' ? 'Pessoa juridica' : 'Pessoa fisica' }}</span>
+    </div>
+    <div class="info-list">
+      <div><span>E-mail</span><strong>{{ form.value.email || 'Não informado' }}</strong></div>
+      <div><span>Telefone</span><strong>{{ form.value.phone || 'Não informado' }}</strong></div>
+      <div><span>Documento</span><strong>{{ form.value.document || 'Não informado' }}</strong></div>
+    </div>
+  </article>
+</section>

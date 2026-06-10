@@ -1,0 +1,145 @@
+<section class="page-head">
+  <div>
+    <h1>Comunicacao</h1>
+    <p>Consulte o conteudo, o canal, os anexos, o status, os insights de follow-up e o historico relacionado.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/comunicacoes">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="goToEdit()">Editar</button>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando comunicacao...</div></section>
+} @else if (errorMessage && !communication) {
+  <section class="panel"><div class="error-box">{{ errorMessage }}</div></section>
+} @else {
+  <section class="detail-layout">
+    <article class="panel">
+      <span class="status-pill">{{ statusLabel }}</span>
+      <h2>{{ communication?.subject || 'Comunicacao' }}</h2>
+      <p>{{ communication?.channel || 'email' }} - {{ formatDateTime(communication?.sent_at || communication?.created_at) }}</p>
+
+      <div class="inline-actions">
+        <button ejs-button cssClass="e-outline" [disabled]="updatingStatus" (click)="markAsSent()">
+          {{ updatingStatus ? 'Atualizando...' : 'Marcar como enviada' }}
+        </button>
+        <button ejs-button cssClass="e-outline" [disabled]="updatingStatus" (click)="markAsDraft()">Voltar para rascunho</button>
+        <button ejs-button cssClass="e-outline danger-outline" [disabled]="updatingStatus" (click)="markAsFailed()">Registrar falha</button>
+      </div>
+
+      @if (successMessage) {
+        <div class="success-box">{{ successMessage }}</div>
+      }
+      @if (errorMessage) {
+        <div class="error-box">{{ errorMessage }}</div>
+      }
+
+      <div class="message-box">
+        <strong>Conteudo da mensagem</strong>
+        <p>{{ communication?.body || 'Nenhum conteudo registrado.' }}</p>
+      </div>
+
+      <div class="message-box alt-box">
+        <div class="section-head">
+          <strong>IA juridica da comunicacao</strong>
+        </div>
+        @if (communicationInsights) {
+          <div class="info-grid two-up">
+            <div><span>Risco de follow-up</span><strong>{{ communicationInsights.follow_up_risk || '-' }}</strong></div>
+            <div><span>Profundidade da mensagem</span><strong>{{ communicationInsights.message_depth || '-' }}</strong></div>
+          </div>
+          <div class="insight-box">
+            <span>Resumo executivo</span>
+            <p>{{ communicationInsights.summary }}</p>
+          </div>
+          <div class="insight-grid">
+            <div class="timeline-item">
+              <strong>Recomendacoes</strong>
+              @for (item of (communicationInsights.recommendations || []); track item) {
+                <span>{{ item }}</span>
+              }
+            </div>
+            <div class="timeline-item">
+              <strong>Follow-up sugerido</strong>
+              <span>{{ communicationInsights.suggested_follow_up }}</span>
+              <small>
+                @if (communicationInsights.next_action_due) {
+                  Proxima acao prevista em {{ formatDateTime(communicationInsights.next_action_due) }}
+                } @else {
+                  Nenhuma proxima acao prevista no contexto atual.
+                }
+              </small>
+            </div>
+          </div>
+        } @else {
+          <div class="timeline-item empty">Os insights desta comunicacao ficam disponiveis conforme o historico relacionado for enriquecido.</div>
+        }
+      </div>
+
+      <div class="message-box alt-box">
+        <div class="section-head">
+          <strong>Anexos da comunicacao</strong>
+          <label class="ghost-button upload-trigger">
+            <input type="file" (change)="handleAttachmentSelected($event)" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.zip" hidden />
+            {{ uploadingAttachment ? 'Enviando anexo...' : 'Adicionar anexo' }}
+          </label>
+        </div>
+        <div class="timeline-list">
+          @for (attachment of attachments; track attachment.id) {
+            <div class="timeline-item resource-item">
+              <div>
+                <strong>{{ attachment.title }}</strong>
+                <span>{{ attachment.fileType || 'arquivo' }}</span>
+                <small>{{ formatDateTime(attachment.createdAt) }}</small>
+              </div>
+              <div class="resource-actions">
+                <button class="ghost-button slim" type="button" (click)="openAttachment(attachment)">Abrir</button>
+                <button class="ghost-button slim" type="button" (click)="downloadAttachment(attachment)">Baixar</button>
+                <button class="ghost-button slim danger-outline" type="button" [disabled]="removingAttachment" (click)="removeAttachment(attachment)">Remover</button>
+              </div>
+            </div>
+          } @empty {
+            <div class="timeline-item empty">Nenhum anexo cadastrado para esta comunicacao.</div>
+          }
+        </div>
+      </div>
+
+      <div class="message-box alt-box">
+        <strong>Historico relacionado</strong>
+        <div class="timeline-list">
+          @for (row of relatedHistory; track row.kind + row.title + row.when) {
+            <button class="timeline-item action-item" type="button" (click)="openHistoryItem(row)">
+              <strong>{{ row.title }}</strong>
+              <span>{{ row.label }} - {{ row.subtitle }}</span>
+              <small>{{ row.when }}</small>
+            </button>
+          } @empty {
+            <div class="timeline-item empty">Nenhum historico relacionado encontrado.</div>
+          }
+        </div>
+      </div>
+    </article>
+
+    <article class="panel side-card">
+      <div class="info-grid">
+        <div><span>Destinatario</span><strong>{{ communication?.recipient_name || communication?.recipient || '-' }}</strong></div>
+        <div><span>Cliente</span><strong>{{ communication?.client_name || communication?.client_id || '-' }}</strong></div>
+        <div><span>Processo</span><strong>{{ communication?.case_number || communication?.case_id || '-' }}</strong></div>
+        <div><span>Canal</span><strong>{{ communication?.channel || '-' }}</strong></div>
+      </div>
+      <button class="ghost-button full-width" type="button" (click)="openClient()">Abrir cliente</button>
+      <button class="ghost-button full-width" type="button" (click)="openProcess()">Abrir processo</button>
+      <button class="ghost-button full-width" type="button" (click)="createRelatedDocument()">Novo documento</button>
+      <button class="ghost-button full-width" type="button" (click)="createAgendaFollowUp()">Novo follow-up na agenda</button>
+
+      <div class="context-box">
+        <strong>Contexto relacionado</strong>
+        <span>Cliente: {{ communication?.client_name || communication?.client_id || 'Nao vinculado' }}</span>
+        <span>Processo: {{ communication?.case_number || communication?.case_id || 'Nao vinculado' }}</span>
+        <span>Status: {{ statusLabel }}</span>
+        <span>Anexos: {{ attachments.length }}</span>
+      </div>
+    </article>
+  </section>
+}

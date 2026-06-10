@@ -1,0 +1,10 @@
+:host { display:block; }
+.form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+.form-grid label { display:grid; gap:0.45rem; }
+.form-grid span { font-weight:700; color:var(--juris-navy); }
+.form-grid textarea { border:1px solid rgba(13,27,42,0.12); border-radius:0.95rem; padding:0.9rem 1rem; }
+.full { grid-column:1 / -1; }
+.empty-state,.error-box { border-radius:1rem; padding:1rem; }
+.empty-state { background:#f8fbff; }
+.error-box { margin-top:1rem; background:#fff1f1; color:#c94040; }
+@media (max-width: 980px) { .form-grid { grid-template-columns:1fr; } .full { grid-column:auto; } }

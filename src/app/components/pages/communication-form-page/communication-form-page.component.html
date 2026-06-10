@@ -1,0 +1,149 @@
+<section class="page-head">
+  <div>
+    <h1>{{ isEdit ? 'Comunicação' : 'Nova comunicação' }}</h1>
+    <p>Envie, registre e acompanhe mensagens vinculadas ao cliente e ao processo.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/comunicacoes">Voltar</a>
+    @if (!isEdit) {
+      <button
+        ejs-button
+        cssClass="e-outline"
+        [disabled]="saving || !form.value.template_id"
+        (click)="sendFromTemplate()">
+        {{ currentAction === 'template' ? 'Enviando...' : 'Enviar por modelo' }}
+      </button>
+    }
+    <button
+      ejs-button
+      cssClass="e-outline"
+      [disabled]="saving"
+      (click)="saveDraft()">
+      {{ currentAction === 'draft' ? 'Salvando...' : 'Salvar rascunho' }}
+    </button>
+    <button
+      ejs-button
+      cssClass="e-primary"
+      [disabled]="saving"
+      (click)="sendNow()">
+      {{ currentAction === 'send' ? 'Enviando...' : 'Enviar agora' }}
+    </button>
+  </div>
+</section>
+
+<section class="detail-layout">
+  <article class="panel">
+    @if (loading) {
+      <div class="empty-state">Carregando comunicação...</div>
+    } @else {
+      <form [formGroup]="form" class="form-grid">
+        <label>
+          <span>Modelo</span>
+          <ejs-dropdownlist
+            [dataSource]="templates"
+            [fields]="{ text: 'name', value: 'id' }"
+            formControlName="template_id"
+            (change)="applyTemplate($event.value)">
+          </ejs-dropdownlist>
+        </label>
+
+        <label>
+          <span>Canal</span>
+          <ejs-dropdownlist [dataSource]="channelOptions" formControlName="channel"></ejs-dropdownlist>
+        </label>
+
+        <label>
+          <span>Destinatário</span>
+          <ejs-textbox cssClass="juris-input" formControlName="recipient"></ejs-textbox>
+        </label>
+
+        <label>
+          <span>Cliente</span>
+          <ejs-dropdownlist
+            [dataSource]="clients"
+            [fields]="{ text: 'name', value: 'id' }"
+            formControlName="client_id">
+          </ejs-dropdownlist>
+        </label>
+
+        <label>
+          <span>Processo</span>
+          <ejs-dropdownlist
+            [dataSource]="cases"
+            [fields]="{ text: 'title', value: 'id' }"
+            formControlName="case_id">
+          </ejs-dropdownlist>
+        </label>
+
+        <label>
+          <span>Status operacional</span>
+          <ejs-dropdownlist [dataSource]="statusOptions" formControlName="status"></ejs-dropdownlist>
+        </label>
+
+        <label class="full">
+          <span>Assunto</span>
+          <ejs-textbox cssClass="juris-input" formControlName="subject"></ejs-textbox>
+        </label>
+
+        <label class="full">
+          <span>Mensagem</span>
+          <textarea rows="9" formControlName="body"></textarea>
+        </label>
+      </form>
+    }
+
+    @if (errorMessage) {
+      <div class="error-box">{{ errorMessage }}</div>
+    }
+
+    @if (successMessage) {
+      <div class="success-box">{{ successMessage }}</div>
+    }
+  </article>
+
+  <article class="panel side-card">
+    <div class="message-preview status-card">
+      <strong>Status da comunicação</strong>
+      <p>{{ communicationStatusLabel }}</p>
+      <small>
+        Use <strong>Salvar rascunho</strong> para revisar depois ou <strong>Enviar agora</strong> para registrar a saída imediata.
+      </small>
+    </div>
+
+    <h2>Prévia da mensagem</h2>
+    <div class="message-preview">
+      <strong>{{ form.value.subject || 'Sem assunto definido' }}</strong>
+      <p>{{ form.value.body || 'Escreva aqui a mensagem que será registrada e enviada pela operação do escritório.' }}</p>
+    </div>
+
+    <div class="message-preview">
+      <strong>Destino sugerido</strong>
+      <p>{{ form.value.recipient || previewRecipientHint }}</p>
+    </div>
+
+    @if (selectedClient) {
+      <div class="message-preview">
+        <strong>Cliente vinculado</strong>
+        <p>{{ selectedClient.name }}</p>
+        <small>{{ selectedClient.document || selectedClient.email || selectedClient.phone || '-' }}</small>
+      </div>
+    }
+
+    @if (selectedCase) {
+      <div class="message-preview">
+        <strong>Processo vinculado</strong>
+        <p>{{ selectedCase.caseNumber || selectedCase.title }}</p>
+        <small>{{ selectedCase.clientName || selectedCase.title }}</small>
+      </div>
+    }
+
+    @if (selectedTemplate) {
+      <div class="message-preview">
+        <strong>Modelo aplicado</strong>
+        <p>
+          O conteúdo foi preparado com o modelo <strong>{{ selectedTemplate.name }}</strong> e já considera cliente, processo e canal selecionados.
+        </p>
+      </div>
+    }
+  </article>
+</section>

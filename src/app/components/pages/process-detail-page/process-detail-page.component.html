@@ -1,0 +1,248 @@
+<section class="page-head">
+  <div>
+    <h1>Processo</h1>
+    <p>Acompanhe a visao geral, os documentos, a agenda e os insights juridicos vinculados ao caso.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/processos">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="goToEdit()">Editar</button>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando processo...</div></section>
+} @else if (errorMessage) {
+  <section class="panel"><div class="error-box">{{ errorMessage }}</div></section>
+} @else {
+  <section class="panel process-hero">
+    <div>
+      <h2>{{ process?.case_number || process?.title || 'Processo' }}</h2>
+      <p>{{ process?.title || 'Caso juridico' }}</p>
+      <div class="hero-tags">
+        <span class="status-pill soft-blue">{{ process?.status || 'open' }}</span>
+        <span class="tag soft">{{ process?.area || 'Area nao informada' }}</span>
+        <span class="tag soft">{{ process?.court || 'Tribunal nao informado' }}</span>
+      </div>
+    </div>
+    <div class="process-metrics">
+      <div><span>Cliente</span><strong>{{ process?.client_name || process?.client_id || '-' }}</strong></div>
+      <div><span>Fase</span><strong>{{ process?.phase || '-' }}</strong></div>
+      <div><span>Vara</span><strong>{{ process?.court_branch || '-' }}</strong></div>
+    </div>
+  </section>
+
+  @if (aiInsights) {
+    <section class="panel ai-panel">
+      <div class="panel-head">
+        <div>
+          <h2>IA juridica</h2>
+          <p>Leitura executiva do processo com risco, proximos passos e recomendacoes operacionais.</p>
+        </div>
+      </div>
+      <div class="ai-grid">
+        <div class="ai-summary">
+          <span>Resumo executivo</span>
+          <strong>{{ aiInsights.summary }}</strong>
+          <small>{{ riskLabel(aiInsights.risk_level) }} - Saude operacional {{ aiInsights.health_score }}/100</small>
+        </div>
+        <div class="ai-metric"><span>Tarefas abertas</span><strong>{{ aiInsights.open_tasks }}</strong></div>
+        <div class="ai-metric"><span>Tarefas vencidas</span><strong>{{ aiInsights.overdue_tasks }}</strong></div>
+        <div class="ai-metric"><span>Compromissos futuros</span><strong>{{ aiInsights.upcoming_appointments }}</strong></div>
+        <div class="ai-metric"><span>Documentos</span><strong>{{ aiInsights.documents_count }}</strong></div>
+        <div class="ai-metric"><span>Comunicacoes</span><strong>{{ aiInsights.messages_count }}</strong></div>
+      </div>
+
+      <div class="detail-layout secondary">
+        <article class="panel soft-panel">
+          <div class="panel-head">
+            <div><h2>Proximos passos sugeridos</h2><p>Acoes recomendadas pelo copiloto juridico.</p></div>
+          </div>
+          <div class="timeline-list">
+            @for (action of aiInsights.next_actions; track action) {
+              <div class="timeline-item">
+                <strong>{{ action }}</strong>
+              </div>
+            }
+          </div>
+        </article>
+
+        <article class="panel soft-panel">
+          <div class="panel-head">
+            <div><h2>Sugestoes prontas para uso</h2><p>Converta o insight em operacao com um clique.</p></div>
+          </div>
+          <div class="notes-box no-top-border">
+            <span>Sugestao de comunicacao</span>
+            <p>{{ aiInsights.communication_suggestion }}</p>
+          </div>
+          <div class="notes-box">
+            <span>Sugestao de documento</span>
+            <p>{{ aiInsights.document_suggestion }}</p>
+          </div>
+          <div class="toolbar-actions">
+            <button class="ghost-button" type="button" (click)="createAgendaItem()">Gerar item da agenda</button>
+            <button class="ghost-button" type="button" (click)="createCommunication()">Gerar comunicacao</button>
+            <button class="ghost-button" type="button" (click)="createSuggestedDocument()">Gerar documento</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  }
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Acoes rapidas</h2><p>Inicie uma operacao ja vinculada a este processo.</p></div>
+    </div>
+    <div class="toolbar-actions">
+      <button class="ghost-button" type="button" (click)="openClient()">Abrir cliente</button>
+      <button class="ghost-button" type="button" (click)="createAgendaItem()">Novo item da agenda</button>
+      <button class="ghost-button" type="button" (click)="createDocument()">Novo documento</button>
+      <button class="ghost-button" type="button" (click)="createCommunication()">Nova comunicacao</button>
+    </div>
+  </section>
+
+  @if (operationMessage) {
+    <section class="panel"><div class="empty-state">{{ operationMessage }}</div></section>
+  }
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Consulta processual</h2>
+        <p>Execute primeiro a consulta gratuita DataJud e, quando houver certificado ativo do advogado, consulte o tribunal correto.</p>
+      </div>
+    </div>
+    @if (syncDiagnosis) {
+      <div class="sync-diagnosis">
+        <article class="diagnosis-card" [class.ready]="syncDiagnosis.datajud?.ready">
+          <span>Consulta gratuita</span>
+          <strong>{{ syncDiagnosis.datajud?.ready ? 'DataJud pronto' : 'DataJud pendente' }}</strong>
+          <small>{{ syncDiagnosis.datajud?.court_label || 'Tribunal ainda nao identificado' }}</small>
+          <em>{{ syncDiagnosis.case?.normalized_case_number || process?.case_number || 'Numero CNJ pendente' }}</em>
+        </article>
+        <article class="diagnosis-card" [class.ready]="syncDiagnosis.tribunal?.ready">
+          <span>Consulta com certificado</span>
+          <strong>{{ syncDiagnosis.tribunal?.ready ? 'Tribunal pronto' : 'Tribunal pendente' }}</strong>
+          <small>{{ syncDiagnosis.tribunal?.connector?.court_name || syncDiagnosis.datajud?.court_label || 'Conector nao configurado' }}</small>
+          <em>{{ syncDiagnosis.tribunal?.certificate?.certificate_name || 'Certificado valido nao encontrado' }}</em>
+        </article>
+      </div>
+      <div class="check-grid">
+        @for (check of syncDiagnosis.checks; track check.key) {
+          <div class="check-item" [class.ready]="check.ready">
+            <span>{{ check.ready ? 'Pronto' : 'Pendente' }}</span>
+            <strong>{{ check.label }}</strong>
+            <small>{{ check.message }}</small>
+          </div>
+        }
+      </div>
+    }
+    <div class="toolbar-actions">
+      <button class="ghost-button" type="button" [disabled]="syncing || !syncReady('datajud')" (click)="syncDataJud()">Consultar DataJud</button>
+      <button class="ghost-button" type="button" [disabled]="syncing || !syncReady('tribunal')" (click)="syncTribunal()">Consultar tribunal com certificado</button>
+      <button class="ghost-button" type="button" [disabled]="syncing || !syncReady('datajud')" (click)="syncFull()">Sincronizacao completa</button>
+    </div>
+    <div class="timeline-list sync-list">
+      @for (log of syncLogs; track log.id) {
+        <div class="timeline-item">
+          <strong>{{ log.source }} - {{ log.status }}</strong>
+          <span>{{ log.court_system || 'tribunal nao informado' }} - movimentos {{ log.movements_imported || 0 }} - documentos {{ log.documents_downloaded || 0 }}</span>
+          <small>{{ log.error_message || (log.created_at | date: 'dd/MM/yyyy HH:mm') }}</small>
+        </div>
+      } @empty {
+        <div class="timeline-item empty">Nenhuma consulta processual registrada.</div>
+      }
+    </div>
+  </section>
+
+  <section class="detail-layout">
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Resumo do processo</h2><p>Informacoes principais do caso.</p></div>
+      </div>
+      <div class="info-grid">
+        <div><span>Numero do processo</span><strong>{{ process?.case_number || '-' }}</strong></div>
+        <div><span>Titulo</span><strong>{{ process?.title || '-' }}</strong></div>
+        <div><span>Area juridica</span><strong>{{ process?.area || '-' }}</strong></div>
+        <div><span>Tribunal</span><strong>{{ process?.court || '-' }}</strong></div>
+        <div><span>Comarca</span><strong>{{ process?.district || '-' }}</strong></div>
+        <div><span>Vara</span><strong>{{ process?.court_branch || '-' }}</strong></div>
+        <div><span>Fase</span><strong>{{ process?.phase || '-' }}</strong></div>
+        <div><span>Status</span><strong>{{ process?.status || '-' }}</strong></div>
+      </div>
+      <div class="notes-box">
+        <span>Observacoes</span>
+        <p>{{ process?.notes || 'Nenhuma observacao registrada para este processo.' }}</p>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Proximos itens da agenda</h2><p>Compromissos, prazos e tarefas relacionados ao processo.</p></div>
+      </div>
+      <div class="timeline-list">
+        @for (item of agendaItems; track item.title + item.when) {
+          <button class="timeline-item action-item" type="button" (click)="openAgendaItem(item.id)">
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.type }} - {{ item.when }}</span>
+            <small>{{ item.owner }} - {{ item.location }} - {{ item.status }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhum item da agenda vinculado.</div>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="detail-layout secondary">
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Documentos do processo</h2><p>Arquivos e pecas relacionadas.</p></div>
+      </div>
+      <div class="timeline-list">
+        @for (item of documents; track item.title + item.createdAt) {
+          <button class="timeline-item action-item" type="button" (click)="openDocument(item.id)">
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.type }}</span>
+            <small>{{ item.createdAt }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhum documento vinculado.</div>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Comunicacoes do processo</h2><p>Mensagens relacionadas a este caso.</p></div>
+      </div>
+      <div class="timeline-list">
+        @for (item of communications; track item.title + item.when) {
+          <button class="timeline-item action-item" type="button" (click)="openCommunication(item.id)">
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.channel }} - {{ item.recipient }}</span>
+            <small>{{ item.when }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhuma comunicacao vinculada.</div>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Timeline do processo</h2><p>Agenda, documentos e comunicacoes em ordem cronologica.</p></div>
+    </div>
+    <div class="timeline-list">
+      @for (row of historyRows; track row.kind + row.title + row.when) {
+        <button class="timeline-item action-item" type="button" (click)="openHistoryRow(row)">
+          <strong>{{ row.title }}</strong>
+          <span>{{ row.kind }} - {{ row.subtitle }}</span>
+          <small>{{ row.when }}</small>
+        </button>
+      } @empty {
+        <div class="timeline-item empty">Nenhum historico operacional registrado.</div>
+      }
+    </div>
+  </section>
+}

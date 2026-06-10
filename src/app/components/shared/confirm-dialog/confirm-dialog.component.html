@@ -1,0 +1,19 @@
+@if (visible) {
+  <div class="confirm-overlay" (click)="onBackdropClick($event)">
+    <div class="confirm-card" role="dialog" aria-modal="true" [attr.aria-busy]="busy">
+      <div class="confirm-icon">
+        <i class="pi pi-exclamation-triangle"></i>
+      </div>
+      <div class="confirm-copy">
+        <h3>{{ title }}</h3>
+        <p>{{ message }}</p>
+      </div>
+      <div class="confirm-actions">
+        <button class="ghost-button" type="button" [disabled]="busy" (click)="cancel.emit()">{{ cancelLabel }}</button>
+        <button ejs-button cssClass="e-primary" type="button" [disabled]="busy" (click)="confirm.emit()">
+          {{ busy ? 'Processando...' : confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

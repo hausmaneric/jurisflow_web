@@ -1,0 +1,243 @@
+:host {
+  display: block;
+}
+
+.tab-strip {
+  display: flex;
+  gap: 1.6rem;
+  background: var(--juris-surface);
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  border-radius: 1.2rem;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.2rem;
+  box-shadow: var(--juris-shadow);
+}
+
+.tab-strip a {
+  color: var(--juris-text-soft);
+  font-weight: 600;
+}
+
+.tab-strip a.active {
+  color: var(--juris-navy);
+  position: relative;
+}
+
+.tab-strip a.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1rem;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--juris-primary);
+}
+
+.action-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(13, 74, 161, 0.22);
+  background: #f7faff;
+}
+
+.report-filters {
+  display: flex;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.report-filters select {
+  min-width: 15rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  background: #fff;
+  outline: none;
+}
+
+.report-grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.report-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.report-layout .list-panel {
+  grid-column: span 1;
+}
+
+.span-two {
+  grid-column: span 2;
+}
+
+.bi-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.bi-block {
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  padding: 1rem;
+}
+
+.bi-block h3 {
+  margin: 0 0 0.8rem;
+  color: var(--juris-navy);
+}
+
+.bi-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.bi-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bi-list span {
+  color: var(--juris-text-soft);
+}
+
+.bi-list strong {
+  color: var(--juris-navy);
+}
+
+.empty-state,
+.error-box {
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.empty-state {
+  background: #f7fbff;
+  color: var(--juris-text-soft);
+}
+
+.error-box {
+  background: #fff1f1;
+  color: #c94040;
+}
+
+.line-area {
+  position: relative;
+  height: 15rem;
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgba(13, 27, 42, 0.03), transparent),
+    repeating-linear-gradient(
+      to top,
+      rgba(13, 27, 42, 0.05) 0,
+      rgba(13, 27, 42, 0.05) 1px,
+      transparent 1px,
+      transparent 50px
+    );
+}
+
+.blue-line,
+.green-line {
+  position: absolute;
+  inset: 1rem 1rem 2rem;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+
+.blue-line {
+  background: linear-gradient(180deg, rgba(45, 108, 255, 0.18), rgba(45, 108, 255, 0));
+  clip-path: polygon(0 58%, 20% 47%, 40% 46%, 60% 19%, 80% 41%, 100% 40%, 100% 100%, 0 100%);
+}
+
+.green-line {
+  background: linear-gradient(180deg, rgba(53, 178, 107, 0.16), rgba(53, 178, 107, 0));
+  clip-path: polygon(0 76%, 20% 66%, 40% 68%, 60% 49%, 80% 70%, 100% 63%, 100% 100%, 0 100%);
+}
+
+.ranking,
+.report-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.ranking div,
+.report-list div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem 0.8rem;
+  align-items: center;
+}
+
+.ranking span,
+.report-list span {
+  color: var(--juris-text-soft);
+}
+
+.ranking i {
+  grid-column: 1 / 2;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2d6cff, #35b26b);
+}
+
+.report-list button {
+  justify-self: end;
+}
+
+.linkish {
+  border: 0;
+  background: transparent;
+  color: var(--juris-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mini {
+  grid-template-columns: 11rem 1fr;
+}
+
+@media (max-width: 1400px) {
+  .report-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .report-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bi-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .report-grid,
+  .report-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .report-filters {
+    flex-direction: column;
+  }
+
+  .report-filters select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .span-two {
+    grid-column: auto;
+  }
+}

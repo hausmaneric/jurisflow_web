@@ -1,0 +1,44 @@
+<section class="page-head">
+  <div>
+    <h1>{{ isEdit ? 'Processo' : 'Novo processo' }}</h1>
+    <p>Cadastre e organize as informacoes juridicas, financeiras e operacionais do caso.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/processos">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="save()">{{ saving ? 'Salvando...' : 'Salvar' }}</button>
+  </div>
+</section>
+
+<section class="panel">
+  @if (loading) {
+    <div class="empty-state">Carregando processo...</div>
+  } @else {
+    <form [formGroup]="form" class="form-grid">
+      <label>
+        <span>Cliente</span>
+        <ejs-dropdownlist [dataSource]="clients" [fields]="{ text: 'name', value: 'id' }" formControlName="client_id"></ejs-dropdownlist>
+      </label>
+
+      <label>
+        <span>Advogado responsavel</span>
+        <ejs-dropdownlist [dataSource]="lawyers" [fields]="{ text: 'name', value: 'id' }" formControlName="lawyer_id"></ejs-dropdownlist>
+      </label>
+
+      <label><span>Numero do processo</span><ejs-textbox cssClass="juris-input" formControlName="case_number"></ejs-textbox></label>
+      <label><span>Titulo interno</span><ejs-textbox cssClass="juris-input" formControlName="title"></ejs-textbox></label>
+      <label><span>Area juridica</span><ejs-textbox cssClass="juris-input" formControlName="area"></ejs-textbox></label>
+      <label><span>Tribunal</span><ejs-textbox cssClass="juris-input" formControlName="court"></ejs-textbox></label>
+      <label><span>Comarca</span><ejs-textbox cssClass="juris-input" formControlName="district"></ejs-textbox></label>
+      <label><span>Vara</span><ejs-textbox cssClass="juris-input" formControlName="court_branch"></ejs-textbox></label>
+      <label><span>Fase</span><ejs-textbox cssClass="juris-input" formControlName="phase"></ejs-textbox></label>
+      <label><span>Status</span><ejs-dropdownlist [dataSource]="statusOptions" formControlName="status"></ejs-dropdownlist></label>
+      <label><span>Valor da causa</span><input type="number" min="0" step="0.01" formControlName="claim_value" /></label>
+      <label><span>Honorarios previstos</span><input type="number" min="0" step="0.01" formControlName="expected_fees" /></label>
+      <label class="full"><span>Observacoes</span><textarea rows="6" formControlName="notes"></textarea></label>
+    </form>
+  }
+
+  @if (errorMessage) {
+    <div class="error-box">{{ errorMessage }}</div>
+  }
+</section>

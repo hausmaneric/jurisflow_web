@@ -1,0 +1,77 @@
+<div class="login-page">
+  <section class="login-brand">
+    <img class="login-brand-logo" src="assets/jurisflow/logo.png" alt="JurisFlow" />
+    <h1>Organize seu escritorio.<br /><span>Acelere</span> seus resultados.</h1>
+    <p>
+      JurisFlow e a plataforma completa para gestao de clientes, processos, agenda,
+      documentos e muito mais.
+    </p>
+
+    <div class="feature-grid">
+      <article><i class="pi pi-users"></i><span>Gestao de clientes completa</span></article>
+      <article><i class="pi pi-calendar"></i><span>Agenda e audiencias inteligentes</span></article>
+      <article><i class="pi pi-file"></i><span>Documentos e procuracoes</span></article>
+      <article><i class="pi pi-bell"></i><span>Avisos e lembretes automaticos</span></article>
+    </div>
+
+    <blockquote>
+      O JurisFlow tornou nossa rotina mais organizada, produtiva e lucrativa.
+      <strong>Escritorio Martins & Associados</strong>
+    </blockquote>
+  </section>
+
+  <section class="login-panel">
+    <div class="login-card">
+      <h2>Bem-vindo de volta!</h2>
+      <p>Faca login para acessar sua conta.</p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <label>Codigo do escritorio</label>
+        <div class="field-shell">
+          <i class="pi pi-building"></i>
+          <ejs-textbox cssClass="juris-input e-bigger" formControlName="companyCode" placeholder="ex.: silva-advocacia"></ejs-textbox>
+        </div>
+
+        <label>E-mail</label>
+        <div class="field-shell">
+          <i class="pi pi-envelope"></i>
+          <ejs-textbox cssClass="juris-input e-bigger" formControlName="email" placeholder="seu@email.com"></ejs-textbox>
+        </div>
+
+        <label>Senha</label>
+        <div class="field-shell">
+          <i class="pi pi-lock"></i>
+          <ejs-textbox [type]="showPassword ? 'text' : 'password'" cssClass="juris-input e-bigger" formControlName="password" placeholder="Sua senha"></ejs-textbox>
+          <button class="toggle" type="button" (click)="togglePassword()">
+            <i class="pi" [class.pi-eye]="!showPassword" [class.pi-eye-slash]="showPassword"></i>
+          </button>
+        </div>
+
+        <div class="meta-row">
+          <label class="remember"><input type="checkbox" checked /> Lembrar de mim</label>
+          <a routerLink="/recuperar-senha">Esqueci minha senha</a>
+        </div>
+
+        <button ejs-button class="submit-button" [disabled]="loading" type="submit">
+          {{ loading ? 'Entrando...' : 'Entrar' }}
+        </button>
+
+        @if (errorMessage) {
+          <div class="error-box">{{ errorMessage }}</div>
+        }
+      </form>
+
+      <div class="divider"><span>ou</span></div>
+
+      <button class="google-button" type="button">
+        <span class="google-mark">G</span>
+        <span>Entrar com Google</span>
+      </button>
+
+      <footer>
+        Ainda nao tem uma conta?
+        <a routerLink="/cadastro">Criar conta</a>
+      </footer>
+    </div>
+  </section>
+</div>

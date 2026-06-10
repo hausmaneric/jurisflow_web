@@ -1,0 +1,249 @@
+<section class="page-head">
+  <div>
+    <h1>Cliente</h1>
+    <p>Visualize o panorama geral, o historico operacional, os insights executivos e as informacoes essenciais do cliente.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/clientes">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="goToEdit()">Editar</button>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando cliente...</div></section>
+} @else if (errorMessage) {
+  <section class="panel"><div class="error-box">{{ errorMessage }}</div></section>
+} @else {
+  <section class="profile-hero panel">
+    <div class="hero-main">
+      <div class="avatar-big">{{ initials(client?.name) }}</div>
+      <div>
+        <h2>{{ client?.name || 'Cliente' }}</h2>
+        <div class="hero-meta">
+          <span class="status-pill">{{ client?.status || 'active' }}</span>
+          <span class="tag soft">{{ client?.document || 'Sem documento' }}</span>
+          <span class="tag soft">{{ client?.email || 'Sem e-mail' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-side">
+      <div><span>Telefone</span><strong>{{ client?.phone || 'Nao informado' }}</strong></div>
+      <div><span>Cadastro</span><strong>{{ client?.created_at ? (client.created_at | date:'dd/MM/yyyy') : '-' }}</strong></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Acoes rapidas</h2><p>Inicie uma operacao ja vinculada a este cliente.</p></div>
+    </div>
+    <div class="toolbar-actions">
+      <button class="ghost-button" type="button" (click)="createAgendaItem()">Novo item da agenda</button>
+      <button class="ghost-button" type="button" (click)="createDocument()">Novo documento</button>
+      <button class="ghost-button" type="button" (click)="createCommunication()">Nova comunicacao</button>
+    </div>
+  </section>
+
+  <section class="detail-layout">
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Resumo do cliente</h2><p>Dados gerais e observacoes operacionais.</p></div>
+      </div>
+      <div class="info-grid">
+        <div><span>Nome completo</span><strong>{{ client?.name || '-' }}</strong></div>
+        <div><span>Documento</span><strong>{{ client?.document || '-' }}</strong></div>
+        <div><span>E-mail</span><strong>{{ client?.email || '-' }}</strong></div>
+        <div><span>Telefone</span><strong>{{ client?.phone || '-' }}</strong></div>
+        <div><span>Data de nascimento</span><strong>{{ client?.birth_date ? (client.birth_date | date:'dd/MM/yyyy') : '-' }}</strong></div>
+        <div><span>Status</span><strong>{{ client?.status || '-' }}</strong></div>
+      </div>
+      <div class="notes-box">
+        <span>Observacoes</span>
+        <p>{{ client?.notes || 'Nenhuma observacao cadastrada para este cliente.' }}</p>
+      </div>
+    </article>
+
+    <article class="panel side-summary">
+      <div class="panel-head">
+        <div><h2>Resumo financeiro</h2><p>Indicadores consolidados do cliente.</p></div>
+      </div>
+      <div class="summary-cards">
+        @for (row of financialRows; track row.label) {
+          <div class="mini-card">
+            <span>{{ row.label }}</span>
+            <strong>{{ row.value }}</strong>
+            <small>{{ row.status }}</small>
+          </div>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>IA juridica do cliente</h2><p>Leitura executiva do relacionamento, riscos e proximos passos.</p></div>
+    </div>
+    @if (clientInsights) {
+      <div class="insights-top">
+        <div class="mini-card emphasis">
+          <span>Score de relacionamento</span>
+          <strong>{{ clientInsights.relationship_score }}</strong>
+          <small>de 100 pontos</small>
+        </div>
+        <div class="mini-card">
+          <span>Risco de engajamento</span>
+          <strong>{{ clientInsights.engagement_risk || '-' }}</strong>
+          <small>{{ clientInsights.last_contact_at ? ('Ultimo contato em ' + (clientInsights.last_contact_at | date:'dd/MM/yyyy HH:mm')) : 'Sem contato registrado' }}</small>
+        </div>
+      </div>
+
+      <div class="notes-box nested-box">
+        <span>Resumo executivo</span>
+        <p>{{ clientInsights.summary }}</p>
+      </div>
+
+      <div class="summary-cards four-up">
+        <div class="mini-card">
+          <span>Processos</span>
+          <strong>{{ clientInsights.total_cases }}</strong>
+          <small>{{ clientInsights.active_cases }} ativos</small>
+        </div>
+        <div class="mini-card">
+          <span>Documentos</span>
+          <strong>{{ clientInsights.total_documents }}</strong>
+          <small>vinculados ao cliente</small>
+        </div>
+        <div class="mini-card">
+          <span>Comunicacoes</span>
+          <strong>{{ clientInsights.total_messages }}</strong>
+          <small>historico registrado</small>
+        </div>
+        <div class="mini-card">
+          <span>Agenda</span>
+          <strong>{{ clientInsights.upcoming_items }}</strong>
+          <small>{{ clientInsights.overdue_items }} vencidos</small>
+        </div>
+      </div>
+
+      <div class="insight-grid">
+        <div class="timeline-item">
+          <strong>Alertas e riscos</strong>
+          @for (item of (clientInsights.risk_flags || []); track item) {
+            <span>{{ item }}</span>
+          }
+        </div>
+        <div class="timeline-item">
+          <strong>Acoes sugeridas</strong>
+          @for (item of (clientInsights.suggested_actions || []); track item) {
+            <span>{{ item }}</span>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="timeline-item empty">Os insights executivos do cliente ficam disponiveis conforme a base operacional vai sendo enriquecida.</div>
+    }
+  </section>
+
+  <section class="detail-layout secondary">
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Processos do cliente</h2><p>Ultimos processos vinculados.</p></div>
+      </div>
+      <div class="table-shell">
+        <table class="juris-table">
+          <thead>
+            <tr>
+              <th>Processo</th>
+              <th>Titulo</th>
+              <th>Status</th>
+              <th>Ultima atualizacao</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of processRows; track row.number) {
+              <tr (click)="openProcess(row.id)">
+                <td><strong>{{ row.number }}</strong></td>
+                <td>{{ row.title }}</td>
+                <td><span class="status-pill soft-blue">{{ row.status }}</span></td>
+                <td>{{ row.updatedAt }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4">Nenhum processo vinculado.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Itens da agenda do cliente</h2><p>Compromissos, prazos e tarefas vinculados a este cliente.</p></div>
+      </div>
+      <div class="timeline-list">
+        @for (row of agendaRows; track row.title + row.when) {
+          <button class="timeline-item action-item" type="button" (click)="openAgendaItem(row.id)">
+            <strong>{{ row.title }}</strong>
+            <span>{{ row.type }} - {{ row.status }}</span>
+            <small>{{ row.when }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhum item da agenda vinculado.</div>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="detail-layout secondary">
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Timeline do cliente</h2><p>Agenda, documentos e comunicacoes em uma visao unica.</p></div>
+      </div>
+      <div class="timeline-list">
+        @for (row of historyRows; track row.kind + row.title + row.when) {
+          <button class="timeline-item action-item" type="button" (click)="openHistoryRow(row)">
+            <strong>{{ row.title }}</strong>
+            <span>{{ row.kind }} - {{ row.subtitle }}</span>
+            <small>{{ row.when }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhum historico operacional registrado.</div>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="detail-layout secondary">
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Documentos recentes</h2><p>Arquivos associados a este cliente.</p></div>
+      </div>
+      <div class="timeline-list">
+        @for (row of documentRows; track row.title + row.when) {
+          <button class="timeline-item action-item" type="button" (click)="openDocument(row.id)">
+            <strong>{{ row.title }}</strong>
+            <span>{{ row.type }}</span>
+            <small>{{ row.when }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhum documento vinculado.</div>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Comunicacoes recentes</h2><p>Mensagens e contatos vinculados a este cliente.</p></div>
+      </div>
+      <div class="timeline-list">
+        @for (row of communicationRows; track row.subject + row.when) {
+          <button class="timeline-item action-item" type="button" (click)="openCommunication(row.id)">
+            <strong>{{ row.subject }}</strong>
+            <span>{{ row.channel }} - {{ row.owner }}</span>
+            <small>{{ row.when }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhuma comunicacao vinculada.</div>
+        }
+      </div>
+    </article>
+  </section>
+}

@@ -1,0 +1,253 @@
+<section class="page-head">
+  <div>
+    <h1>Documento</h1>
+    <p>Visualize as informações, os vínculos, o OCR, as versões, os anexos, a assinatura digital e o histórico relacionado.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/documentos">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="goToEdit()">Editar</button>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando documento...</div></section>
+} @else if (errorMessage && !document) {
+  <section class="panel"><div class="error-box">{{ errorMessage }}</div></section>
+} @else {
+  <section class="detail-layout">
+    <article class="panel">
+      <h2>{{ document?.title || 'Documento' }}</h2>
+      @if (successMessage) {
+        <div class="success-box">{{ successMessage }}</div>
+      }
+      @if (errorMessage) {
+        <div class="error-box">{{ errorMessage }}</div>
+      }
+
+      <div class="info-grid">
+        <div><span>Tipo</span><strong>{{ document?.file_type || document?.document_type || '-' }}</strong></div>
+        <div><span>Status</span><strong>{{ document?.status || '-' }}</strong></div>
+        <div><span>Cliente</span><strong>{{ document?.client_name || document?.client_id || '-' }}</strong></div>
+        <div><span>Processo</span><strong>{{ document?.case_number || document?.case_id || '-' }}</strong></div>
+        <div><span>Adicionado em</span><strong>{{ formatDate(document?.created_at) }}</strong></div>
+        <div><span>Origem</span><strong>{{ document?.uploaded_by_name || document?.uploaded_by || '-' }}</strong></div>
+      </div>
+
+      <div class="notes-box">
+        <span>Arquivo / URL</span>
+        <p>{{ document?.file_url || 'Sem URL registrada.' }}</p>
+      </div>
+
+      <div class="notes-box">
+        <div class="section-head">
+          <span>OCR e leitura assistida</span>
+          <div class="resource-actions wrap">
+            <button class="ghost-button slim" type="button" [disabled]="processingOcr" (click)="processOcr()">
+              {{ processingOcr ? 'Processando OCR...' : 'Processar OCR' }}
+            </button>
+            <button class="ghost-button slim" type="button" [disabled]="savingOcr || !ocrReviewedText.trim()" (click)="saveOcrReview()">
+              {{ savingOcr ? 'Salvando revisão...' : 'Salvar revisão' }}
+            </button>
+          </div>
+        </div>
+        @if (ocrResult) {
+          <div class="info-grid compact-grid">
+            <div><span>Status</span><strong>{{ ocrResult.status || '-' }}</strong></div>
+            <div><span>Engine</span><strong>{{ ocrResult.engine || '-' }}</strong></div>
+            <div><span>Confiança</span><strong>{{ ocrResult.confidence_score || '-' }}</strong></div>
+            <div><span>Processado em</span><strong>{{ formatDateTime(ocrResult.updated_at || ocrResult.created_at) }}</strong></div>
+          </div>
+        } @else {
+          <div class="timeline-item empty">Nenhum resultado OCR gerado para este documento.</div>
+        }
+        <div class="ocr-grid">
+          <label>
+            <span>Texto extraído</span>
+            <textarea rows="10" [value]="ocrResult?.extracted_text || ''" readonly></textarea>
+          </label>
+          <label>
+            <span>Texto revisado</span>
+            <textarea rows="10" [(ngModel)]="ocrReviewedText"></textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="notes-box">
+        <div class="section-head">
+          <span>Insight executivo do documento</span>
+        </div>
+        @if (documentInsights) {
+          <div class="info-grid compact-grid">
+            <div><span>Qualidade da extração</span><strong>{{ documentInsights.extraction_quality || '-' }}</strong></div>
+            <div><span>Status do OCR</span><strong>{{ documentInsights.ocr_status || '-' }}</strong></div>
+          </div>
+
+          <div class="notes-box nested-box">
+            <span>Resumo automático</span>
+            <p>{{ documentInsights.summary }}</p>
+          </div>
+
+          <div class="chips-row">
+            @for (keyword of (documentInsights.keywords || []); track keyword) {
+              <span class="data-chip">{{ keyword }}</span>
+            } @empty {
+              <span class="data-chip muted">Sem palavras-chave relevantes</span>
+            }
+          </div>
+
+          <div class="insight-grid">
+            <div class="timeline-item">
+              <strong>Riscos e atenção</strong>
+              @for (item of (documentInsights.risk_flags || []); track item) {
+                <span>{{ item }}</span>
+              }
+            </div>
+            <div class="timeline-item">
+              <strong>Próximas ações sugeridas</strong>
+              @for (item of (documentInsights.suggested_actions || []); track item) {
+                <span>{{ item }}</span>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="timeline-item empty">Os insights do documento ficam disponíveis assim que o OCR ou o conteúdo relacionado puderem ser analisados.</div>
+        }
+      </div>
+
+      <div class="notes-box">
+        <div class="section-head">
+          <span>Assinatura digital</span>
+          <button class="ghost-button" type="button" [disabled]="creatingSignatureRequest" (click)="createSignatureRequest()">
+            {{ creatingSignatureRequest ? 'Criando solicitação...' : 'Solicitar assinatura' }}
+          </button>
+        </div>
+        <div class="timeline-list">
+          @for (request of signatureRequests; track request.id) {
+            <div class="timeline-item resource-item">
+              <div>
+                <strong>{{ request.signerName }}</strong>
+                <span>{{ request.signerRole || 'Assinante' }} · {{ request.signerEmail || 'sem e-mail informado' }}</span>
+                <small>
+                  {{ statusLabel(request.status) }}
+                  @if (request.signedAt) { · Assinada em {{ formatDateTime(request.signedAt) }} }
+                  @else if (request.viewedAt) { · Visualizada em {{ formatDateTime(request.viewedAt) }} }
+                  @else if (request.sentAt) { · Enviada em {{ formatDateTime(request.sentAt) }} }
+                </small>
+              </div>
+              <div class="resource-actions wrap">
+                <button class="ghost-button slim" type="button" (click)="copySignatureLink(request)">Copiar link</button>
+                <button class="ghost-button slim" type="button" (click)="openSignatureLink(request)">Abrir link</button>
+                @if (request.status !== 'sent' && request.status !== 'signed' && request.status !== 'cancelled') {
+                  <button class="ghost-button slim" type="button" [disabled]="updatingSignatureRequest" (click)="markSignatureRequestAsSent(request)">Marcar como enviada</button>
+                }
+                @if (request.status !== 'signed' && request.status !== 'cancelled') {
+                  <button class="ghost-button slim danger-outline" type="button" [disabled]="updatingSignatureRequest" (click)="cancelSignatureRequest(request)">Cancelar</button>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="timeline-item empty">Nenhuma solicitação de assinatura cadastrada.</div>
+          }
+        </div>
+      </div>
+
+      <div class="notes-box">
+        <div class="section-head">
+          <span>Versões do documento</span>
+          <label class="ghost-button upload-trigger">
+            <input type="file" (change)="handleVersionSelected($event)" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.zip" hidden />
+            {{ uploadingVersion ? 'Enviando versão...' : 'Adicionar versão' }}
+          </label>
+        </div>
+        <div class="timeline-list">
+          @for (version of versions; track version.id) {
+            <div class="timeline-item resource-item">
+              <div>
+                <strong>{{ version.versionLabel }}</strong>
+                <span>{{ version.title }} · {{ version.fileType || 'arquivo' }}</span>
+                <small>{{ formatDateTime(version.createdAt) }} @if (version.isCurrent) { · Atual }</small>
+              </div>
+              <div class="resource-actions">
+                @if (!version.isCurrent) {
+                  <button class="ghost-button slim" type="button" [disabled]="promotingVersion" (click)="makeCurrentVersion(version)">Definir atual</button>
+                  <button class="ghost-button slim danger-outline" type="button" [disabled]="removingVersion" (click)="removeVersion(version)">Remover</button>
+                }
+                <button class="ghost-button slim" type="button" (click)="openVersion(version)">Abrir</button>
+                <button class="ghost-button slim" type="button" (click)="downloadVersion(version)">Baixar</button>
+              </div>
+            </div>
+          } @empty {
+            <div class="timeline-item empty">Nenhuma versão adicional cadastrada.</div>
+          }
+        </div>
+      </div>
+
+      <div class="notes-box">
+        <div class="section-head">
+          <span>Anexos do documento</span>
+          <label class="ghost-button upload-trigger">
+            <input type="file" (change)="handleAttachmentSelected($event)" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.zip" hidden />
+            {{ uploadingAttachment ? 'Enviando anexo...' : 'Adicionar anexo' }}
+          </label>
+        </div>
+        <div class="timeline-list">
+          @for (attachment of attachments; track attachment.id) {
+            <div class="timeline-item resource-item">
+              <div>
+                <strong>{{ attachment.title }}</strong>
+                <span>{{ attachment.fileType || 'arquivo' }}</span>
+                <small>{{ formatDateTime(attachment.createdAt) }}</small>
+              </div>
+              <div class="resource-actions">
+                <button class="ghost-button slim" type="button" (click)="openAttachment(attachment)">Abrir</button>
+                <button class="ghost-button slim" type="button" (click)="downloadAttachment(attachment)">Baixar</button>
+                <button class="ghost-button slim danger-outline" type="button" [disabled]="removingAttachment" (click)="removeAttachment(attachment)">Remover</button>
+              </div>
+            </div>
+          } @empty {
+            <div class="timeline-item empty">Nenhum anexo cadastrado para este documento.</div>
+          }
+        </div>
+      </div>
+
+      <div class="notes-box">
+        <span>Histórico relacionado</span>
+        <div class="timeline-list">
+          @for (row of relatedHistory; track row.kind + row.title + row.when) {
+            <button class="timeline-item action-item" type="button" (click)="openHistoryItem(row)">
+              <strong>{{ row.title }}</strong>
+              <span>{{ row.label }} · {{ row.subtitle }}</span>
+              <small>{{ row.when }}</small>
+            </button>
+          } @empty {
+            <div class="timeline-item empty">Nenhum histórico relacionado encontrado.</div>
+          }
+        </div>
+      </div>
+    </article>
+
+    <article class="panel side-card">
+      <div class="upload-box">
+        <i class="pi pi-file"></i>
+        <strong>{{ document?.title || 'Documento' }}</strong>
+        <span>{{ document?.file_type || document?.document_type || 'arquivo' }}</span>
+      </div>
+      <button class="ghost-button full-width" type="button" (click)="openDocument()">Abrir arquivo</button>
+      <button class="ghost-button full-width" type="button" (click)="downloadDocument()">Baixar arquivo</button>
+      <button class="ghost-button full-width" type="button" (click)="openClient()">Abrir cliente</button>
+      <button class="ghost-button full-width" type="button" (click)="openProcess()">Abrir processo</button>
+      <button class="ghost-button full-width" type="button" (click)="createRelatedCommunication()">Nova comunicação</button>
+
+      <div class="context-box">
+        <strong>Contexto relacionado</strong>
+        <span>Cliente: {{ document?.client_name || document?.client_id || 'Não vinculado' }}</span>
+        <span>Processo: {{ document?.case_number || document?.case_id || 'Não vinculado' }}</span>
+        <span>Status: {{ document?.status || 'Sem status' }}</span>
+        <span>OCR: {{ ocrResult?.status || 'Não processado' }}</span>
+        <span>Versões: {{ versions.length }}</span>
+        <span>Anexos: {{ attachments.length }}</span>
+        <span>Assinaturas: {{ signatureRequests.length }}</span>
+      </div>
+    </article>
+  </section>
+}

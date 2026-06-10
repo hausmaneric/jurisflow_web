@@ -1,0 +1,25 @@
+:host { display:block; }
+.detail-layout { display:grid; grid-template-columns:1.35fr 0.65fr; gap:1rem; }
+.form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+.form-grid label { display:grid; gap:0.45rem; }
+.form-grid span { font-weight:700; color:var(--juris-navy); }
+.full { grid-column:1 / -1; }
+.upload-box,.empty-state,.error-box,.success-box,.generated-preview { border-radius:1rem; padding:1rem; }
+.upload-box { background:#f8fbff; text-align:center; display:grid; gap:0.6rem; }
+.upload-box i { font-size:2rem; color:var(--juris-primary); }
+.error-box { margin-top:1rem; background:#fff1f1; color:#c94040; }
+.success-box { margin-top:1rem; background:#eefbf3; color:#18794e; }
+.generated-preview {
+  margin-top:1rem;
+  background:#fffdfa;
+  border:1px solid rgba(13, 71, 161, 0.08);
+  color:#31425f;
+  line-height:1.7;
+  white-space:pre-wrap;
+  max-height:34rem;
+  overflow:auto;
+}
+.hidden-file-input {
+  display:none;
+}
+@media (max-width:980px){ .detail-layout,.form-grid { grid-template-columns:1fr; } .full { grid-column:auto; } }

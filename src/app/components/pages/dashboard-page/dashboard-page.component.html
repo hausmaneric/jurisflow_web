@@ -1,0 +1,203 @@
+<section class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Tenha uma visao clara da operacao do escritorio em tempo real.</p>
+  </div>
+</section>
+
+<section class="metrics-grid">
+  @for (metric of data.dashboardMetrics; track metric.title) {
+    <article class="metric-card" [class]="'metric-card tone-' + metric.color">
+      <div class="metric-icon">
+        <i [class]="metric.icon"></i>
+      </div>
+      <div>
+        <span>{{ metric.title }}</span>
+        <strong>{{ metric.value }}</strong>
+        <small>{{ metric.helper }}</small>
+      </div>
+    </article>
+  }
+</section>
+
+<section class="quick-actions">
+  <button class="quick-action" (click)="goTo('/plataforma/clientes/novo')"><i class="pi pi-user-plus"></i><span>Novo cliente</span></button>
+  <button class="quick-action" (click)="goTo('/plataforma/processos/novo')"><i class="pi pi-briefcase"></i><span>Novo processo</span></button>
+  <button class="quick-action" (click)="goTo('/plataforma/agenda/novo')"><i class="pi pi-calendar-plus"></i><span>Novo item da agenda</span></button>
+  <button class="quick-action" (click)="goTo('/plataforma/agenda/novo?kind=task')"><i class="pi pi-check-square"></i><span>Nova tarefa</span></button>
+</section>
+
+@if (dashboardInsights) {
+  <section class="panel executive-panel">
+    <div class="panel-head">
+      <div>
+        <h2>IA juridica da operacao</h2>
+        <p>Leitura executiva do escritorio com alertas e recomendacoes do dia.</p>
+      </div>
+    </div>
+
+    <div class="executive-top">
+      <div class="executive-score">
+        <span>Saude operacional</span>
+        <strong>{{ dashboardInsights.operation_health }}</strong>
+        <small>de 100 pontos</small>
+      </div>
+      <div class="executive-summary">
+        <span>Resumo executivo</span>
+        <p>{{ dashboardInsights.executive_summary }}</p>
+      </div>
+    </div>
+
+    <div class="executive-grid">
+      <div class="executive-card">
+        <strong>Alertas prioritarios</strong>
+        @for (item of (dashboardInsights.priority_alerts || []); track item) {
+          <span>{{ item }}</span>
+        }
+      </div>
+      <div class="executive-card">
+        <strong>Recomendacoes</strong>
+        @for (item of (dashboardInsights.recommendations || []); track item) {
+          <span>{{ item }}</span>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+<section class="dashboard-layout">
+  <article class="panel chart-panel">
+    <div class="panel-head">
+      <div>
+        <h2>Visao geral</h2>
+        <p>Ultimos 7 dias</p>
+      </div>
+      <button>Ultimos 7 dias</button>
+    </div>
+
+    <div class="line-chart">
+      @for (point of data.chartSeries; track point.x) {
+        <div class="point" [style.--value]="point.y * 18 + 8">
+          <span>{{ point.x }}</span>
+        </div>
+      }
+      <div class="line"></div>
+    </div>
+
+    <div class="stats-row">
+      <div><strong>{{ data.activityFeed.length }}</strong><span>Atividades recentes</span></div>
+      <div><strong>{{ data.clients.length }}</strong><span>Clientes ativos</span></div>
+      <div><strong>{{ createdDocumentsCount }}</strong><span>Documentos criados</span></div>
+      <div><strong>{{ createdProcessesCount }}</strong><span>Processos ativos</span></div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Audiencias proximas</h2>
+        <p>Agenda juridica priorizada</p>
+      </div>
+      <a routerLink="/plataforma/agenda">Ver todas</a>
+    </div>
+
+    <div class="agenda-list">
+      @for (event of data.upcomingHearings; track event.id) {
+        <button class="agenda-item action-row" type="button" (click)="openAgendaItem(event.id)">
+          <div class="date-badge">{{ event.dateLabel }}</div>
+          <div class="agenda-copy">
+            <strong>{{ event.title }}</strong>
+            <span>{{ event.client }}</span>
+            <small><i class="pi pi-clock"></i> {{ event.timeLabel }} - {{ event.location }}</small>
+          </div>
+          <span class="status-pill">{{ event.type }}</span>
+        </button>
+      }
+    </div>
+  </article>
+
+  <article class="panel side-panel">
+    <div class="panel-head">
+      <div>
+        <h2>Agenda de hoje</h2>
+        <p>Compromissos centrais do dia</p>
+      </div>
+      <a routerLink="/plataforma/agenda">Ver agenda</a>
+    </div>
+
+    <div class="today-list">
+      @for (item of data.todayAgenda; track item.id) {
+        <button class="today-row action-row" type="button" (click)="openAgendaItem(item.id)">
+          <strong>{{ item.timeLabel }}</strong>
+          <div>
+            <span>{{ item.title }}</span>
+            <small>{{ item.client }}</small>
+          </div>
+        </button>
+      }
+    </div>
+
+    <div class="panel-head secondary">
+      <h2>Pendencias da agenda</h2>
+      <a routerLink="/plataforma/agenda">Ver todos</a>
+    </div>
+
+    <div class="task-list">
+      @for (task of data.tasks; track task.tarefa) {
+        <button class="task-item action-row" type="button" (click)="openTask(task)">
+          <input type="checkbox" [checked]="task.status.toLowerCase().includes('conclu')" />
+          <div>
+            <strong>{{ task.tarefa }}</strong>
+            <small>{{ task.processo }}</small>
+          </div>
+          <span>{{ task.prazo }}</span>
+        </button>
+      }
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Processos por area</h2>
+        <p>Distribuicao do escritorio</p>
+      </div>
+      <a routerLink="/plataforma/relatorios">Ver relatorio</a>
+    </div>
+
+    <div class="donut-layout">
+      <div class="donut-center">
+        <strong>{{ totalProcessArea }}</strong>
+        <span>Total</span>
+      </div>
+      <div class="legend">
+        @for (slice of data.donutSeries; track slice.x) {
+          <div><span class="dot"></span>{{ slice.x }} <strong>{{ slice.y }}</strong></div>
+        }
+      </div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Atividades recentes</h2>
+        <p>Movimento operacional consolidado</p>
+      </div>
+      <a routerLink="/plataforma/comunicacoes">Ver todas</a>
+    </div>
+
+    <div class="feed-list">
+      @for (item of data.activityFeed; track item.title + item.subtitle) {
+        <div class="feed-row">
+          <div class="feed-icon"><i [class]="item.icon"></i></div>
+          <div>
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.subtitle }}</span>
+          </div>
+          <small>{{ item.when }}</small>
+        </div>
+      }
+    </div>
+  </article>
+</section>

@@ -1,0 +1,97 @@
+<section class="page-head">
+  <div>
+    <h1>{{ isEdit ? 'Editar modelo de documento' : 'Novo modelo de documento' }}</h1>
+    <p>Defina a estrutura, as variáveis e o tipo de saída para gerar documentos com rapidez e consistência.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/modelos-documento">Voltar</a>
+    <button ejs-button cssClass="e-primary" [disabled]="saving" (click)="save()">
+      {{ saving ? 'Salvando...' : 'Salvar modelo' }}
+    </button>
+  </div>
+</section>
+
+<section class="template-layout panel">
+  @if (loading) {
+    <div class="empty-state">Carregando modelo...</div>
+  } @else {
+    <div class="editor-column">
+      <form [formGroup]="form" class="form-grid">
+        <label>
+          <span>Nome do modelo</span>
+          <input type="text" formControlName="name" placeholder="Ex.: Contrato de honorários" />
+        </label>
+
+        <label>
+          <span>Categoria</span>
+          <input type="text" formControlName="category" placeholder="Ex.: contratos, petições, procurações" />
+        </label>
+
+        <label>
+          <span>Tipo de arquivo</span>
+          <select formControlName="file_type">
+            @for (type of fileTypeOptions; track type) {
+              <option [value]="type">{{ type.toUpperCase() }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Variáveis (JSON)</span>
+          <textarea rows="5" formControlName="variables" placeholder='["cliente_nome","processo_numero"]'></textarea>
+        </label>
+
+        <label class="full">
+          <span>Conteúdo do modelo</span>
+          <textarea
+            rows="18"
+            formControlName="template_body"
+            placeholder="Escreva aqui o corpo base do documento usando as variáveis disponíveis."
+          ></textarea>
+        </label>
+
+        <label class="check full">
+          <input type="checkbox" formControlName="active" />
+          <span>Modelo ativo para uso no escritório</span>
+        </label>
+      </form>
+
+      @if (errorMessage) {
+        <div class="error-box">{{ errorMessage }}</div>
+      }
+    </div>
+
+    <aside class="preview-column">
+      <div class="preview-card">
+        <h3>Pré-visualização</h3>
+        <p>Veja como o conteúdo base do modelo está ficando antes de salvar.</p>
+        <div class="preview-surface">
+          <pre>{{ previewBody }}</pre>
+        </div>
+      </div>
+
+      <div class="preview-card">
+        <h3>Variáveis sugeridas</h3>
+        <p>Esses placeholders ajudam a reutilizar o modelo no contexto do cliente, processo e escritório.</p>
+        <div class="chip-list">
+          @for (variable of variableSuggestions; track variable) {
+            <span class="chip">{{ variable }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="preview-card">
+        <h3>Variáveis detectadas</h3>
+        @if (variablesPreview.length) {
+          <ul class="variable-list">
+            @for (variable of variablesPreview; track variable) {
+              <li>{{ variable }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="muted">Preencha o JSON de variáveis para facilitar a manutenção do modelo.</p>
+        }
+      </div>
+    </aside>
+  }
+</section>

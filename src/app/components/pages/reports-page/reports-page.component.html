@@ -1,0 +1,223 @@
+<section class="page-head">
+  <div>
+    <h1>Relatorios</h1>
+    <p>Acompanhe indicadores, produtividade, desempenho do escritorio e paineis executivos do BI juridico.</p>
+  </div>
+  <div class="header-actions">
+    <button class="ghost-button" type="button" (click)="exportReport()">Exportar</button>
+    <button ejs-button cssClass="e-primary" type="button" (click)="openSuggestedModule()">Novo relatorio</button>
+  </div>
+</section>
+
+<section class="tab-strip">
+  @for (tab of tabs; track tab) {
+    <a href="#" [class.active]="activeTab === tab" (click)="$event.preventDefault(); setActiveTab(tab)">{{ tab }}</a>
+  }
+</section>
+
+<section class="report-filters">
+  <select [(ngModel)]="rangeFilter">
+    @for (option of rangeOptions; track option.value) {
+      <option [value]="option.value">{{ option.label }}</option>
+    }
+  </select>
+  <select [(ngModel)]="ownerFilter">
+    <option value="todos">Todos os responsaveis</option>
+    @for (owner of ownerOptions; track owner) {
+      <option [value]="owner">{{ owner }}</option>
+    }
+  </select>
+  <button class="ghost-button" type="button" (click)="exportReport()">Exportar filtros</button>
+</section>
+
+<section class="metrics-grid report-grid">
+  <article class="metric-card tone-blue action-card" (click)="openRoute('/plataforma/processos')">
+    <div class="metric-icon"><i class="pi pi-briefcase"></i></div>
+    <div><span>Processos ativos</span><strong>{{ activeProcessesCount }}</strong><small>Base atual da operacao</small></div>
+  </article>
+  <article class="metric-card tone-green action-card" (click)="openRoute('/plataforma/agenda')">
+    <div class="metric-icon"><i class="pi pi-users"></i></div>
+    <div><span>Audiencias</span><strong>{{ hearingsCount }}</strong><small>Agenda juridica consolidada</small></div>
+  </article>
+  <article class="metric-card tone-purple action-card" (click)="openRoute('/plataforma/agenda')">
+    <div class="metric-icon"><i class="pi pi-check-square"></i></div>
+    <div><span>Itens concluidos</span><strong>{{ completedTasksCount }}</strong><small>Leitura do quadro operacional</small></div>
+  </article>
+  <article class="metric-card tone-gold action-card" (click)="openRoute('/plataforma/financeiro')">
+    <div class="metric-icon"><i class="pi pi-wallet"></i></div>
+    <div><span>Faturamento</span><strong>{{ data.reportsMetrics[3]?.value }}</strong><small>{{ data.reportsMetrics[3]?.helper }}</small></div>
+  </article>
+  <article class="metric-card tone-red action-card" (click)="openRoute('/plataforma/financeiro')">
+    <div class="metric-icon"><i class="pi pi-money-bill"></i></div>
+    <div><span>Recebimentos</span><strong>{{ data.reportsMetrics[4]?.value }}</strong><small>{{ data.reportsMetrics[4]?.helper }}</small></div>
+  </article>
+  <article class="metric-card tone-blue action-card" (click)="openRoute('/plataforma/clientes')">
+    <div class="metric-icon"><i class="pi pi-user-plus"></i></div>
+    <div><span>Novos clientes</span><strong>{{ newClientsCount }}</strong><small>{{ rangeLabel }}</small></div>
+  </article>
+</section>
+
+@if (activeTab === 'BI juridico') {
+  <section class="report-layout">
+    <article class="panel span-two">
+      <div class="panel-head">
+        <div><h2>BI juridico</h2><p>Painel executivo com distribuicao por area, status, agenda e clientes com maior volume.</p></div>
+      </div>
+      @if (biLoading) {
+        <div class="empty-state">Carregando indicadores de BI...</div>
+      } @else if (biError) {
+        <div class="error-box">{{ biError }}</div>
+      } @else {
+        <div class="bi-summary">
+          <div class="bi-block">
+            <h3>Processos por area</h3>
+            <div class="bi-list">
+              @for (item of biAreaRows; track item.label) {
+                <div><span>{{ item.label }}</span><strong>{{ item.total }}</strong></div>
+              } @empty {
+                <div><span>Sem dados</span><strong>0</strong></div>
+              }
+            </div>
+          </div>
+
+          <div class="bi-block">
+            <h3>Agenda por tipo</h3>
+            <div class="bi-list">
+              @for (item of biAgendaRows; track item.label) {
+                <div><span>{{ item.label }}</span><strong>{{ item.total }}</strong></div>
+              } @empty {
+                <div><span>Sem dados</span><strong>0</strong></div>
+              }
+            </div>
+          </div>
+
+          <div class="bi-block">
+            <h3>Top clientes por volume</h3>
+            <div class="bi-list">
+              @for (item of topClientRows; track item.name) {
+                <div><span>{{ item.name }}</span><strong>{{ item.value }}</strong></div>
+              } @empty {
+                <div><span>Sem dados</span><strong>0</strong></div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Status dos processos</h2><p>Leitura consolidada do contencioso</p></div>
+      </div>
+      <div class="donut-layout mini">
+        <div class="donut-center">
+          <strong>{{ data.processes.length }}</strong>
+          <span>Total</span>
+        </div>
+        <div class="legend">
+          @for (row of processStatusRows; track row.label) {
+            <div><span [class]="row.color"></span>{{ row.label }} <strong>{{ row.count }}</strong></div>
+          }
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Produtividade do time</h2><p>Visao executiva por responsavel</p></div>
+      </div>
+      <div class="ranking">
+        @for (row of productivityRows; track row.name) {
+          <div><span>{{ row.name }}</span><i [style.width]="row.width"></i><strong>{{ row.count }}</strong></div>
+        } @empty {
+          <div><span>Sem base de produtividade</span><i style="width: 24%"></i><strong>0</strong></div>
+        }
+      </div>
+    </article>
+  </section>
+} @else {
+  <section class="report-layout">
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Processos por status</h2><p>Distribuicao atual</p></div>
+      </div>
+      <div class="donut-layout">
+        <div class="donut-center">
+          <strong>{{ data.processes.length }}</strong>
+          <span>Total</span>
+        </div>
+        <div class="legend">
+          @for (row of processStatusRows; track row.label) {
+            <div><span [class]="row.color"></span> {{ row.label }} <strong>{{ row.count }}</strong></div>
+          }
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Faturamento x Recebimentos</h2><p>Evolucao visual da operacao</p></div>
+        <button class="ghost-button">Mensal</button>
+      </div>
+      <div class="line-area">
+        <div class="blue-line"></div>
+        <div class="green-line"></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Produtividade da equipe</h2><p>Itens concluidos da agenda</p></div>
+        <button class="ghost-button">{{ rangeLabel }}</button>
+      </div>
+      <div class="ranking">
+        @for (row of productivityRows; track row.name) {
+          <div><span>{{ row.name }}</span><i [style.width]="row.width"></i><strong>{{ row.count }}</strong></div>
+        } @empty {
+          <div><span>Sem base de produtividade</span><i style="width: 24%"></i><strong>0</strong></div>
+        }
+      </div>
+    </article>
+
+    <article class="panel list-panel">
+      <div class="panel-head">
+        <div><h2>Relatorios disponiveis</h2><p>Geracao sob demanda</p></div>
+      </div>
+      <div class="report-list">
+        @for (report of availableReports; track report.title) {
+          <div><strong>{{ report.title }}</strong><span>{{ report.description }}</span><button class="ghost-button" (click)="openRoute(report.route)">Abrir modulo</button></div>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><h2>Processos por area do direito</h2><p>{{ rangeLabel }}</p></div>
+        <button class="ghost-button">{{ rangeLabel }}</button>
+      </div>
+      <div class="donut-layout mini">
+        <div class="donut-center">
+          <strong>{{ areaTotal }}</strong>
+          <span>Total</span>
+        </div>
+        <div class="legend">
+          @for (slice of data.donutSeries; track slice.x) {
+            <div><span class="dot"></span>{{ slice.x }} <strong>{{ slice.y }}</strong></div>
+          }
+        </div>
+      </div>
+    </article>
+
+    <article class="panel top-list">
+      <div class="panel-head">
+        <div><h2>Top 5 clientes por volume processual</h2><p>Ranking baseado no BI juridico da operacao.</p></div>
+        <button class="ghost-button">{{ rangeLabel }}</button>
+      </div>
+      <div class="report-list compact">
+        @for (item of topClientRows; track item.name) {
+          <div><strong>{{ item.name }}</strong><button class="linkish" (click)="openRoute('/plataforma/clientes')">{{ item.value }}</button></div>
+        }
+      </div>
+    </article>
+  </section>
+}

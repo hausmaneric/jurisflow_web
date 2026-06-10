@@ -1,0 +1,71 @@
+<section class="signature-shell">
+  <article class="brand-panel">
+    <img src="assets/jurisflow/logo_1.png" alt="JurisFlow" />
+    <h1>Assinatura digital</h1>
+    <p>Revise o documento e conclua a assinatura com seguranca.</p>
+
+    @if (requestData) {
+      <div class="brand-card">
+        <strong>{{ requestData.company_name }}</strong>
+        <span>Documento: {{ requestData.document_title }}</span>
+        <span>Status: {{ statusLabel(requestData.status) }}</span>
+      </div>
+    }
+  </article>
+
+  <article class="content-panel">
+    @if (loading) {
+      <div class="panel"><div class="empty-state">Carregando solicitacao de assinatura...</div></div>
+    } @else if (errorMessage && !requestData) {
+      <div class="panel"><div class="error-box">{{ errorMessage }}</div></div>
+    } @else {
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <h2>{{ requestData?.document_title || 'Documento para assinatura' }}</h2>
+            <p>Confira os dados abaixo antes de confirmar sua assinatura.</p>
+          </div>
+          <button class="ghost-button" type="button" (click)="openDocument()">Abrir documento</button>
+        </div>
+
+        @if (successMessage) {
+          <div class="success-box">{{ successMessage }}</div>
+        }
+        @if (errorMessage && requestData) {
+          <div class="error-box">{{ errorMessage }}</div>
+        }
+
+        <div class="info-grid">
+          <div><span>Escritorio</span><strong>{{ requestData?.company_name || '-' }}</strong></div>
+          <div><span>Status</span><strong>{{ statusLabel(requestData?.status) }}</strong></div>
+          <div><span>Tipo de arquivo</span><strong>{{ requestData?.file_type || '-' }}</strong></div>
+          <div><span>Enviado em</span><strong>{{ formatDateTime(requestData?.sent_at || requestData?.created_at) }}</strong></div>
+          <div><span>Visualizado em</span><strong>{{ formatDateTime(requestData?.viewed_at) }}</strong></div>
+          <div><span>Assinado em</span><strong>{{ formatDateTime(requestData?.signed_at) }}</strong></div>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            <span>Nome do signatario</span>
+            <input [(ngModel)]="signerName" type="text" placeholder="Digite seu nome completo" />
+          </label>
+          <label>
+            <span>Documento do signatario</span>
+            <input [(ngModel)]="signerDocument" type="text" placeholder="CPF ou documento" />
+          </label>
+        </div>
+
+        <div class="notes-box">
+          <span>Observacoes</span>
+          <p>{{ requestData?.notes || 'Sem observacoes adicionais para esta assinatura.' }}</p>
+        </div>
+
+        <div class="action-row">
+          <button ejs-button cssClass="e-primary" [disabled]="signing || !canSign || !signerName.trim()" (click)="sign()">
+            {{ signing ? 'Assinando...' : 'Assinar documento' }}
+          </button>
+        </div>
+      </div>
+    }
+  </article>
+</section>

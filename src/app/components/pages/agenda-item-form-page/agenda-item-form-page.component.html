@@ -1,0 +1,57 @@
+<section class="page-head">
+  <div>
+    <h1>{{ pageTitle }}</h1>
+    <p>{{ pageDescription }}</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/agenda">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="save()">{{ saving ? 'Salvando...' : 'Salvar' }}</button>
+  </div>
+</section>
+
+<section class="panel">
+  @if (loading) {
+    <div class="empty-state">Carregando item da agenda...</div>
+  } @else {
+    <form [formGroup]="form" class="form-grid">
+      <label>
+        <span>Categoria do item</span>
+        <ejs-dropdownlist
+          [dataSource]="kindOptions"
+          [fields]="{ text: 'text', value: 'id' }"
+          [value]="itemKind"
+          (change)="changeKind($any($event).value)">
+        </ejs-dropdownlist>
+      </label>
+
+      <label><span>Título</span><ejs-textbox cssClass="juris-input" formControlName="title"></ejs-textbox></label>
+
+      @if (!isTask) {
+        <label><span>Tipo</span><ejs-dropdownlist [dataSource]="typeOptions" formControlName="type"></ejs-dropdownlist></label>
+      } @else {
+        <label><span>Prioridade</span><ejs-dropdownlist [dataSource]="priorityOptions" formControlName="priority"></ejs-dropdownlist></label>
+      }
+
+      <label><span>Cliente</span><ejs-dropdownlist [dataSource]="clients" [fields]="{ text: 'name', value: 'id' }" formControlName="client_id"></ejs-dropdownlist></label>
+      <label><span>Processo</span><ejs-dropdownlist [dataSource]="cases" [fields]="{ text: 'title', value: 'id' }" formControlName="case_id"></ejs-dropdownlist></label>
+
+      @if (isTask) {
+        <label><span>Responsável</span><ejs-dropdownlist [dataSource]="users" [fields]="{ text: 'name', value: 'id' }" formControlName="assigned_user_id"></ejs-dropdownlist></label>
+        <label><span>Prazo</span><input type="datetime-local" formControlName="due_at" /></label>
+        <label><span>Status</span><ejs-dropdownlist [dataSource]="taskStatusOptions" formControlName="status"></ejs-dropdownlist></label>
+      } @else {
+        <label><span>Data e hora inicial</span><input type="datetime-local" formControlName="start_at" /></label>
+        <label><span>Data e hora final</span><input type="datetime-local" formControlName="end_at" /></label>
+        <label><span>Modalidade</span><ejs-dropdownlist [dataSource]="modeOptions" formControlName="mode"></ejs-dropdownlist></label>
+        <label><span>Status</span><ejs-dropdownlist [dataSource]="appointmentStatusOptions" formControlName="status"></ejs-dropdownlist></label>
+        <label class="full"><span>Local / link</span><ejs-textbox cssClass="juris-input" formControlName="location"></ejs-textbox></label>
+      }
+
+      <label class="full"><span>Descrição</span><textarea rows="6" formControlName="notes"></textarea></label>
+    </form>
+  }
+
+  @if (errorMessage) {
+    <div class="error-box">{{ errorMessage }}</div>
+  }
+</section>

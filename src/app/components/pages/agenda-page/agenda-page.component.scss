@@ -1,0 +1,242 @@
+:host {
+  display: block;
+}
+
+.agenda-layout {
+  display: grid;
+  grid-template-columns: 21rem 1fr;
+  gap: 1.2rem;
+}
+
+.header-actions select {
+  min-width: 11rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  background: #fff;
+  outline: none;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.4rem;
+}
+
+.calendar-grid span {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--juris-text-soft);
+  padding: 0.5rem 0;
+}
+
+.calendar-grid button {
+  position: relative;
+  border: 0;
+  height: 2.4rem;
+  border-radius: 0.85rem;
+  background: transparent;
+  color: var(--juris-navy);
+  cursor: pointer;
+}
+
+.calendar-grid button.active {
+  background: var(--juris-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.calendar-grid button.outside {
+  color: #a7b2c4;
+}
+
+.calendar-grid button.today {
+  box-shadow: inset 0 0 0 1px var(--juris-gold);
+}
+
+.calendar-grid button.has-items::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0.35rem;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 999px;
+  background: var(--juris-blue);
+  transform: translateX(-50%);
+}
+
+.calendar-grid button.active.has-items::after {
+  background: #fff;
+}
+
+.month-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.icon-only {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.calendar-legend {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+  color: var(--juris-text-soft);
+}
+
+.upcoming-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+}
+
+.upcoming-list h3 {
+  margin: 0;
+}
+
+.upcoming-card {
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  background: #fbfcff;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.action-card {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.action-card:hover {
+  border-color: rgba(13, 74, 161, 0.22);
+  background: #f4f8ff;
+  transform: translateY(-1px);
+}
+
+.upcoming-card span,
+.upcoming-card small,
+.slot-empty {
+  color: var(--juris-text-soft);
+}
+
+.day-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  border-radius: 1rem;
+  background: #fbfcff;
+}
+
+.day-summary strong {
+  color: var(--juris-primary);
+  font-size: 1.4rem;
+}
+
+.day-summary span {
+  color: var(--juris-text-soft);
+}
+
+.empty-state.compact {
+  padding: 0.85rem 1rem;
+  border: 1px dashed rgba(13, 27, 42, 0.12);
+  border-radius: 1rem;
+  color: var(--juris-text-soft);
+}
+
+.color {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.blue { background: #dbe8ff; border-left: 4px solid #2d6cff; }
+.green { background: #e7f7ea; border-left: 4px solid #35b26b; }
+.gold { background: #fff2df; border-left: 4px solid #f0ad40; }
+.violet { background: #f1ebff; border-left: 4px solid #7c5fe8; }
+.color.blue { background: #2d6cff; border-left: 0; }
+.color.green { background: #35b26b; border-left: 0; }
+.color.gold { background: #f0ad40; border-left: 0; }
+.color.purple { background: #7c5fe8; border-left: 0; }
+
+.timeline {
+  display: grid;
+}
+
+.time-row {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  min-height: 5.2rem;
+  border-top: 1px solid rgba(13, 27, 42, 0.07);
+}
+
+.time-row:first-child {
+  border-top: 0;
+}
+
+.time-row strong {
+  padding-top: 1rem;
+  color: var(--juris-text-soft);
+}
+
+.time-cell {
+  padding: 0.7rem 0 0.7rem 1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.event {
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  display: grid;
+  gap: 0.3rem;
+  border-top-width: 0;
+  border-right-width: 0;
+  border-bottom-width: 0;
+}
+
+.event span,
+.event small {
+  color: var(--juris-text-soft);
+}
+
+.task-card {
+  border: 1px solid rgba(13, 27, 42, 0.08);
+}
+
+.deadline-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+@media (max-width: 980px) {
+  .agenda-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .header-actions select {
+    min-width: 0;
+    width: 100%;
+  }
+}

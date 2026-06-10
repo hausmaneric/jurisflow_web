@@ -1,0 +1,125 @@
+<section class="page-head">
+  <div>
+    <h1>Notificações</h1>
+    <p>Controle a fila de avisos, lembretes, tentativas de envio e leitura dos usuários.</p>
+  </div>
+  <button type="button" class="primary-button" (click)="newNotification()">Nova notificação</button>
+</section>
+
+@if (successMessage) {
+  <div class="feedback success">{{ successMessage }}</div>
+}
+@if (errorMessage) {
+  <div class="feedback error">{{ errorMessage }}</div>
+}
+
+<section class="notifications-layout">
+  <aside class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Fila de notificações</h2>
+        <p>{{ filteredNotifications.length }} registro(s) encontrados</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar notificação..." />
+      <select [(ngModel)]="statusFilter">
+        <option value="">Todos os status</option>
+        @for (status of statusOptions; track status.value) {
+          <option [value]="status.value">{{ status.label }}</option>
+        }
+      </select>
+    </div>
+
+    @if (loading) {
+      <div class="empty-state">Carregando notificações...</div>
+    } @else {
+      <div class="notification-list">
+        @for (item of filteredNotifications; track item.id) {
+          <button type="button" class="notification-card" [class.active]="selectedNotification?.id === item.id" (click)="selectNotification(item)">
+            <strong>{{ item.title }}</strong>
+            <span>{{ channelLabel(item.channel) }} • {{ formatDateTime(item.scheduled_at || item.created_at) }}</span>
+            <div class="notification-card__meta">
+              <span class="badge" [class.success]="item.status === 'sent' || item.status === 'read'" [class.warning]="item.status === 'pending' || item.status === 'scheduled'" [class.danger]="item.status === 'failed'">
+                {{ statusLabel(item.status) }}
+              </span>
+              <small>{{ item.attempts || 0 }} tentativa(s)</small>
+            </div>
+          </button>
+        } @empty {
+          <div class="empty-state">Nenhuma notificação cadastrada.</div>
+        }
+      </div>
+    }
+  </aside>
+
+  <article class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>{{ selectedNotification?.id ? 'Editar notificação' : 'Nova notificação' }}</h2>
+        <p>Defina canal, destinatário, agendamento, status e histórico de envio.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="form-grid">
+      <label class="field">
+        <span>Título *</span>
+        <input type="text" formControlName="title" placeholder="Ex.: Lembrete de audiência" />
+      </label>
+
+      <label class="field">
+        <span>ID do usuário destinatário</span>
+        <input type="text" formControlName="user_id" placeholder="Opcional" />
+      </label>
+
+      <label class="field">
+        <span>Canal *</span>
+        <select formControlName="channel">
+          @for (channel of channelOptions; track channel.value) {
+            <option [value]="channel.value">{{ channel.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Status *</span>
+        <select formControlName="status">
+          @for (status of statusOptions; track status.value) {
+            <option [value]="status.value">{{ status.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Agendada para</span>
+        <input type="datetime-local" formControlName="scheduled_at" />
+      </label>
+
+      <label class="field">
+        <span>Tentativas</span>
+        <input type="number" min="0" formControlName="attempts" />
+      </label>
+
+      <label class="field">
+        <span>Enviada em</span>
+        <input type="datetime-local" formControlName="sent_at" />
+      </label>
+
+      <label class="field">
+        <span>Lida em</span>
+        <input type="datetime-local" formControlName="read_at" />
+      </label>
+
+      <label class="field full">
+        <span>Mensagem *</span>
+        <textarea rows="7" formControlName="body" placeholder="Escreva o conteúdo da notificação..."></textarea>
+      </label>
+
+      <div class="form-actions full">
+        <button type="button" class="secondary-button" (click)="newNotification()">Limpar</button>
+        <button type="submit" class="primary-button" [disabled]="saving">{{ saving ? 'Salvando...' : 'Salvar notificação' }}</button>
+      </div>
+    </form>
+  </article>
+</section>

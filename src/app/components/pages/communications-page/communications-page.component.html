@@ -1,0 +1,160 @@
+<section class="page-head">
+  <div>
+    <h1>Comunicacoes</h1>
+    <p>Centralize mensagens, acompanhe envios e organize os canais de contato do escritorio.</p>
+  </div>
+  <button ejs-button cssClass="e-primary" (click)="openCreate()">Nova comunicacao</button>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <strong>{{ data.communications.length }}</strong>
+    <span>Total de comunicacoes</span>
+  </article>
+  <article class="stat-card">
+    <strong>{{ sentCount }}</strong>
+    <span>Enviadas</span>
+  </article>
+  <article class="stat-card">
+    <strong>{{ scheduledCount }}</strong>
+    <span>Agendadas</span>
+  </article>
+  <article class="stat-card">
+    <strong>{{ failedCount }}</strong>
+    <span>Falhas</span>
+  </article>
+</section>
+
+<section class="panel filters-panel">
+  <div class="search-box">
+    <i class="pi pi-search"></i>
+    <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar comunicacao..." />
+  </div>
+
+  <select [(ngModel)]="channelFilter">
+    <option value="todos">Todos os canais</option>
+    <option value="e-mail">E-mail</option>
+    <option value="whatsapp">WhatsApp</option>
+    <option value="sms">SMS</option>
+  </select>
+
+  <select [(ngModel)]="statusFilter">
+    <option value="todos">Todos os status</option>
+    <option value="enviada">Enviada</option>
+    <option value="agendada">Agendada</option>
+    <option value="falha">Falha</option>
+  </select>
+</section>
+
+<section class="detail-layout">
+  <article class="panel table-panel">
+    <table>
+      <thead>
+        <tr>
+          <th>Assunto</th>
+          <th>Processo / Cliente</th>
+          <th>Canal</th>
+          <th>Destinatario</th>
+          <th>Data / Hora</th>
+          <th>Status</th>
+          <th>Acoes</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (message of filteredMessages; track message.id || $index; let i = $index) {
+          <tr [class.selected]="selectedMessage === message" (click)="selectMessage(i)">
+            <td>{{ message.assunto }}</td>
+            <td>{{ message.processoCliente }}</td>
+            <td>{{ message.canal }}</td>
+            <td>{{ message.destinatario }}</td>
+            <td>{{ message.dataHora }}</td>
+            <td><span class="status-pill">{{ message.status }}</span></td>
+            <td class="actions-cell">
+              <button type="button" class="icon-action" (click)="openDetails(message); $event.stopPropagation()" title="Ver comunicacao"><i class="pi pi-eye"></i></button>
+              <button type="button" class="icon-action" (click)="openEdit(message); $event.stopPropagation()" title="Editar comunicacao"><i class="pi pi-pencil"></i></button>
+              <button type="button" class="icon-action" (click)="requestRemove(message); $event.stopPropagation()" title="Excluir comunicacao"><i class="pi pi-trash"></i></button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7">Nenhuma comunicacao encontrada para os filtros atuais.</td></tr>
+        }
+      </tbody>
+    </table>
+  </article>
+
+  <article class="panel preview-panel">
+    @if (selectedMessage) {
+      <div class="panel-head">
+        <div>
+          <h2>{{ selectedMessage.assunto }}</h2>
+          <p>{{ selectedMessage.canal }} - {{ selectedMessage.status }}</p>
+        </div>
+      </div>
+      <div class="preview-copy">
+        <strong>Destinatario</strong>
+        <p>{{ selectedMessage.destinatario }}</p>
+        <strong>Contexto</strong>
+        <p>{{ selectedMessage.processoCliente }}</p>
+        <strong>Resumo</strong>
+        <p>{{ selectedMessage.resumo || 'Sem resumo adicional.' }}</p>
+        <strong>Responsavel / origem</strong>
+        <p>{{ selectedMessage.ownerName || 'Nao informado' }}</p>
+        @if (selectedMessage.body) {
+          <strong>Mensagem</strong>
+          <p>{{ selectedMessage.body }}</p>
+        }
+        <div class="toolbar-actions">
+          @if (selectedMessage.clientId) {
+            <a class="ghost-button" [routerLink]="['/plataforma/clientes', selectedMessage.clientId]">Abrir cliente</a>
+          }
+          @if (selectedMessage.caseId) {
+            <a class="ghost-button" [routerLink]="['/plataforma/processos', selectedMessage.caseId]">Abrir processo</a>
+          }
+          <button class="ghost-button" type="button" (click)="openRelatedDocument()">Novo documento</button>
+        </div>
+        <strong>Documentos relacionados</strong>
+        <div class="timeline-list compact">
+          @for (document of relatedDocuments; track document.id || document.nome) {
+            <button class="linked-item" type="button" (click)="openDocument(document)">
+              <strong>{{ document.nome }}</strong>
+              <small>{{ document.tipo }} - {{ document.adicionado }}</small>
+            </button>
+          } @empty {
+            <div class="timeline-item empty">Nenhum documento relacionado encontrado.</div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="empty-state">Selecione uma comunicacao para visualizar os detalhes.</div>
+    }
+  </article>
+</section>
+
+<app-confirm-dialog
+  [visible]="!!pendingRemoval"
+  title="Excluir comunicacao"
+  [message]="'Deseja excluir a comunicacao ' + (pendingRemoval?.assunto || 'selecionada') + '? Esta acao nao pode ser desfeita.'"
+  confirmLabel="Excluir comunicacao"
+  (cancel)="cancelRemove()"
+  (confirm)="confirmRemove()"
+/>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2>Modelos de comunicacao</h2>
+      <p>Abra uma nova comunicacao ja preparada com o modelo e com o contexto selecionado.</p>
+    </div>
+  </div>
+
+  <div class="timeline-list compact">
+    @for (template of filteredTemplates; track template.id) {
+      <button class="linked-item" type="button" (click)="openFromTemplate(template)">
+        <strong>{{ template.name }}</strong>
+        <small>{{ template.channel }} - {{ template.subject || 'Sem assunto padrao' }}</small>
+      </button>
+    } @empty {
+      <div class="timeline-item empty">Nenhum modelo de comunicacao disponivel.</div>
+    }
+  </div>
+</section>

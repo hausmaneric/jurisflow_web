@@ -1,0 +1,54 @@
+<section class="page-head">
+  <div>
+    <h1>{{ isEdit ? 'Usuário' : 'Novo usuário' }}</h1>
+    <p>Cadastre e edite os acessos da equipe sem sair do fluxo principal da plataforma.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/usuarios">Voltar</a>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando usuário...</div></section>
+} @else {
+  <section class="panel form-panel" [formGroup]="form">
+    @if (errorMessage) {
+      <div class="error-box">{{ errorMessage }}</div>
+    }
+
+    <div class="form-grid">
+      <label>
+        <span>Nome</span>
+        <input type="text" formControlName="name" />
+      </label>
+      <label>
+        <span>E-mail</span>
+        <input type="email" formControlName="email" />
+      </label>
+      <label>
+        <span>Senha</span>
+        <input type="password" formControlName="password" />
+      </label>
+      <label>
+        <span>Perfil</span>
+        <select formControlName="role_id">
+          <option value="">Selecione</option>
+          @for (role of roles; track role.id) {
+            <option [value]="role.id">{{ role.name }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    <label class="check-line">
+      <input type="checkbox" formControlName="active" />
+      <span>Usuário ativo</span>
+    </label>
+
+    <div class="form-actions">
+      <button ejs-button cssClass="e-primary" (click)="save()" [disabled]="saving">
+        {{ saving ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </section>
+}

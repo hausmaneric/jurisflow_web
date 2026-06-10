@@ -1,0 +1,255 @@
+<div class="register-page">
+  <section class="register-brand">
+    <img src="assets/jurisflow/logo.png" alt="JurisFlow" />
+
+    @if (step === 1) {
+      <h1>Crie sua conta e transforme a <span>gestao do seu escritorio.</span></h1>
+      <p>
+        Cadastre-se e tenha acesso a uma plataforma completa para organizar clientes,
+        processos, agenda, documentos e muito mais.
+      </p>
+      <div class="brand-points">
+        <article><i class="pi pi-users"></i><div><strong>Organizacao completa</strong><span>Gerencie clientes, processos, agenda e documentos em um so lugar.</span></div></article>
+        <article><i class="pi pi-shield"></i><div><strong>Seguranca garantida</strong><span>Seus dados protegidos com tecnologia de ponta e backup automatico.</span></div></article>
+        <article><i class="pi pi-chart-line"></i><div><strong>Mais produtividade</strong><span>Automatize tarefas e tenha mais tempo para o que realmente importa.</span></div></article>
+        <article><i class="pi pi-cloud"></i><div><strong>Acesse de qualquer lugar</strong><span>Plataforma 100% online, disponivel para web e aplicativo.</span></div></article>
+      </div>
+      <blockquote>
+        O JurisFlow mudou completamente a forma como gerenciamos nosso escritorio. Mais controle,
+        mais organizacao e mais resultados!
+        <strong>Equipe JurisFlow</strong>
+      </blockquote>
+    } @else if (step === 2) {
+      <h1>Vamos configurar seu escritorio para uma <span>gestao completa.</span></h1>
+      <p>
+        Informe os dados do seu escritorio. Eles serao utilizados em documentos, contratos e
+        comunicacoes.
+      </p>
+      <div class="brand-points">
+        <article><i class="pi pi-building"></i><div><strong>Identidade profissional</strong><span>Personalize com os dados do seu escritorio e marca.</span></div></article>
+        <article><i class="pi pi-users"></i><div><strong>Multiplos usuarios</strong><span>Convide sua equipe e defina permissoes de acesso.</span></div></article>
+        <article><i class="pi pi-lock"></i><div><strong>Seguranca e privacidade</strong><span>Seus dados e de seus clientes sempre protegidos.</span></div></article>
+        <article><i class="pi pi-arrow-up-right"></i><div><strong>Cresca com o JurisFlow</strong><span>Recursos avancados para escritorios de todos os tamanhos.</span></div></article>
+      </div>
+      <blockquote>
+        O JurisFlow nos ajudou a organizar processos, clientes e audiencias em um so lugar.
+        <strong>Equipe JurisFlow</strong>
+      </blockquote>
+    } @else {
+      <h1>Quase la! Finalize e comece a transformar a <span>gestao do seu escritorio.</span></h1>
+      <p>
+        Revise suas informacoes e escolha o plano ideal para o seu momento.
+      </p>
+      <div class="brand-points">
+        <article><i class="pi pi-shield"></i><div><strong>Ambiente seguro</strong><span>Seus dados protegidos com criptografia e backups diarios.</span></div></article>
+        <article><i class="pi pi-cloud"></i><div><strong>Acesso em qualquer lugar</strong><span>Acesse de onde estiver, a qualquer momento, com total seguranca.</span></div></article>
+        <article><i class="pi pi-headphones"></i><div><strong>Suporte especializado</strong><span>Nossa equipe esta pronta para ajudar voce em todas as etapas.</span></div></article>
+        <article><i class="pi pi-chart-line"></i><div><strong>Cresca sem limites</strong><span>Planos flexiveis que acompanham o crescimento do seu escritorio.</span></div></article>
+      </div>
+      <blockquote>
+        O JurisFlow foi feito para advogados que buscam mais organizacao, produtividade e resultado.
+        <strong>Equipe JurisFlow</strong>
+      </blockquote>
+    }
+  </section>
+
+  <section class="register-panel">
+    <div class="register-card">
+      <div class="card-head">
+        <div class="icon-shell">
+          <i class="pi" [class.pi-user]="step === 1" [class.pi-building]="step === 2" [class.pi-check-circle]="step === 3"></i>
+        </div>
+        <div>
+          <h2>Criar conta</h2>
+          <p>
+            @if (step === 1) {
+              Preencha os dados abaixo para criar sua conta.
+            } @else if (step === 2) {
+              Preencha os dados do seu escritorio.
+            } @else {
+              Revise suas informacoes e finalize seu cadastro.
+            }
+          </p>
+        </div>
+      </div>
+
+      <div class="stepper-rail">
+        <div class="step-item" [class.active]="step >= 1">
+          <span>1</span>
+          <strong>Dados da conta</strong>
+        </div>
+        <div class="step-line" [class.active]="step >= 2"></div>
+        <div class="step-item" [class.active]="step >= 2">
+          <span>2</span>
+          <strong>Dados do escritorio</strong>
+        </div>
+        <div class="step-line" [class.active]="step >= 3"></div>
+        <div class="step-item" [class.active]="step >= 3">
+          <span>3</span>
+          <strong>Confirmacao</strong>
+        </div>
+      </div>
+
+      @if (step === 1) {
+        <form [formGroup]="accountForm" class="form-grid enhanced">
+          <label>
+            <span>Nome completo</span>
+            <ejs-textbox cssClass="juris-input" formControlName="name" placeholder="Seu nome completo"></ejs-textbox>
+          </label>
+          <label>
+            <span>E-mail</span>
+            <ejs-textbox cssClass="juris-input" formControlName="email" placeholder="seu@email.com"></ejs-textbox>
+          </label>
+          <label>
+            <span>Telefone / WhatsApp</span>
+            <ejs-textbox cssClass="juris-input" formControlName="phone" placeholder="(11) 99999-9999"></ejs-textbox>
+          </label>
+          <label>
+            <span>Senha</span>
+            <ejs-textbox type="password" cssClass="juris-input" formControlName="password" placeholder="Crie uma senha"></ejs-textbox>
+          </label>
+          <label class="half">
+            <span>Confirmar senha</span>
+            <ejs-textbox type="password" cssClass="juris-input" formControlName="confirmPassword" placeholder="Confirme sua senha"></ejs-textbox>
+          </label>
+        </form>
+
+        <div class="password-box">
+          <div class="icon-shell small"><i class="pi pi-shield"></i></div>
+          <div>
+            <strong>Sua senha deve conter:</strong>
+            <div class="password-rules">
+              <span>Minimo de 8 caracteres</span>
+              <span>Pelo menos uma letra maiuscula</span>
+              <span>Pelo menos um numero</span>
+              <span>Pelo menos um caractere especial</span>
+            </div>
+          </div>
+        </div>
+
+        <label class="terms"><input type="checkbox" checked /> Li e concordo com os Termos de Uso e Politica de Privacidade</label>
+      } @else if (step === 2) {
+        <form [formGroup]="officeForm" class="form-grid enhanced">
+          <label>
+            <span>Nome do escritorio</span>
+            <ejs-textbox cssClass="juris-input" formControlName="officeName" placeholder="Nome do seu escritorio"></ejs-textbox>
+          </label>
+          <label>
+            <span>CNPJ</span>
+            <ejs-textbox cssClass="juris-input" formControlName="cnpj" placeholder="00.000.000/0001-00"></ejs-textbox>
+          </label>
+          <label>
+            <span>OAB</span>
+            <ejs-textbox cssClass="juris-input" formControlName="oab" placeholder="UF 00000"></ejs-textbox>
+          </label>
+          <label>
+            <span>Telefone principal</span>
+            <ejs-textbox cssClass="juris-input" formControlName="phone" placeholder="(11) 99999-9999"></ejs-textbox>
+          </label>
+          <label class="full">
+            <span>E-mail institucional</span>
+            <ejs-textbox cssClass="juris-input" formControlName="email" placeholder="contato@seuescritorio.com.br"></ejs-textbox>
+          </label>
+          <label class="full">
+            <span>Endereco</span>
+            <ejs-textbox cssClass="juris-input" formControlName="address" placeholder="Rua, numero, bairro"></ejs-textbox>
+          </label>
+          <label>
+            <span>Complemento</span>
+            <ejs-textbox cssClass="juris-input" formControlName="complement" placeholder="Sala, andar, conjunto"></ejs-textbox>
+          </label>
+          <label>
+            <span>Cidade</span>
+            <ejs-textbox cssClass="juris-input" formControlName="city" placeholder="Sua cidade"></ejs-textbox>
+          </label>
+          <label>
+            <span>Estado</span>
+            <ejs-dropdownlist formControlName="state" [dataSource]="states"></ejs-dropdownlist>
+          </label>
+          <label>
+            <span>CEP</span>
+            <ejs-textbox cssClass="juris-input" formControlName="cep" placeholder="00000-000"></ejs-textbox>
+          </label>
+        </form>
+
+        <div class="upload-preview">
+          <div class="upload-area">
+            <strong>Logo do escritorio (opcional)</strong>
+            <ejs-uploader [autoUpload]="false"></ejs-uploader>
+          </div>
+          <div class="preview-box">
+            <span>Pre-visualizacao</span>
+            <img src="assets/jurisflow/logo_1.png" alt="Previa da logo" />
+          </div>
+        </div>
+      } @else {
+        <div class="summary-grid">
+          <article>
+            <h3>Sua conta</h3>
+            <p><strong>Nome:</strong> {{ accountForm.value.name }}</p>
+            <p><strong>E-mail:</strong> {{ accountForm.value.email }}</p>
+            <p><strong>Telefone:</strong> {{ accountForm.value.phone }}</p>
+          </article>
+          <article>
+            <h3>Seu escritorio</h3>
+            <p><strong>Nome:</strong> {{ officeForm.value.officeName }}</p>
+            <p><strong>CNPJ:</strong> {{ officeForm.value.cnpj }}</p>
+            <p><strong>OAB:</strong> {{ officeForm.value.oab }}</p>
+            <p><strong>E-mail:</strong> {{ officeForm.value.email }}</p>
+          </article>
+        </div>
+
+        <div class="plans-grid">
+          @for (plan of plans; track plan.name) {
+            <article class="plan-card" [class.selected]="plan.selected">
+              <div class="plan-head">
+                <h3>{{ plan.name }}</h3>
+                @if (plan.name === 'Pro') {
+                  <span class="plan-badge">Mais escolhido</span>
+                }
+              </div>
+              <strong>{{ plan.price }}</strong>
+              <ul>
+                @for (highlight of plan.highlights; track highlight) {
+                  <li>{{ highlight }}</li>
+                }
+              </ul>
+            </article>
+          }
+        </div>
+
+        <div class="secure-box">
+          <i class="pi pi-lock"></i>
+          <div>
+            <strong>Ambiente 100% seguro</strong>
+            <span>Seus dados estao protegidos com criptografia de ponta a ponta.</span>
+          </div>
+        </div>
+      }
+
+      @if (errorMessage) {
+        <div class="form-alert">{{ errorMessage }}</div>
+      }
+
+      <div class="actions">
+        @if (step > 1) {
+          <button class="ghost" type="button" (click)="previous()" [disabled]="loading">Voltar</button>
+        } @else {
+          <button class="ghost" type="button" (click)="cancel()" [disabled]="loading">Cancelar</button>
+        }
+        @if (step < 3) {
+          <button ejs-button class="primary" type="button" (click)="next()" [disabled]="loading">Proximo</button>
+        } @else {
+          <button ejs-button class="primary gold" type="button" (click)="finish()" [disabled]="loading">
+            {{ loading ? 'Criando conta...' : 'Finalizar cadastro' }}
+          </button>
+        }
+      </div>
+
+      <footer class="register-footer">
+        Ja tem uma conta?
+        <a routerLink="/login">Fazer login</a>
+      </footer>
+    </div>
+  </section>
+</div>

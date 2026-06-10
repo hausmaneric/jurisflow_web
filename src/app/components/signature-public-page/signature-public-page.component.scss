@@ -1,0 +1,139 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.16), transparent 26%),
+    linear-gradient(135deg, #081a31 0%, #10284a 42%, #f5f7fa 42%, #eef2f6 100%);
+}
+
+.signature-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+}
+
+.brand-panel {
+  color: white;
+  padding: 3rem 2.5rem;
+  display: grid;
+  align-content: start;
+  gap: 1.25rem;
+}
+
+.brand-panel img {
+  width: 240px;
+}
+
+.brand-panel h1 {
+  margin: 1rem 0 0;
+  font-size: 2.4rem;
+}
+
+.brand-panel p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.brand-card {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem 1.2rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.content-panel {
+  padding: 3rem;
+  display: grid;
+  align-content: center;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(13, 27, 42, 0.08);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 24px 60px rgba(9, 19, 36, 0.08);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.section-head h2 {
+  margin: 0;
+  color: var(--juris-navy);
+}
+
+.section-head p {
+  margin: 0.35rem 0 0;
+  color: var(--juris-text-soft);
+}
+
+.info-grid,
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.info-grid div,
+.form-grid label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.info-grid span,
+.form-grid span,
+.notes-box span {
+  color: var(--juris-text-soft);
+}
+
+.form-grid input {
+  border: 1px solid rgba(13, 27, 42, 0.12);
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  font: inherit;
+}
+
+.notes-box {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(13, 27, 42, 0.08);
+}
+
+.action-row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.empty-state,.error-box,.success-box {
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.empty-state { background: #f8fbff; }
+.error-box { background: #fff1f1; color: #c94040; margin-top: 1rem; }
+.success-box { background: #eefaf2; color: #1f7a40; margin-top: 1rem; }
+
+@media (max-width: 980px) {
+  .signature-shell,
+  .info-grid,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .content-panel {
+    padding: 1rem;
+  }
+
+  .brand-panel {
+    padding: 2rem 1.25rem 1rem;
+  }
+}

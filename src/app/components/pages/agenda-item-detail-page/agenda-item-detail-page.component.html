@@ -1,0 +1,122 @@
+<section class="page-head">
+  <div>
+    <h1>Item da agenda</h1>
+    <p>Consulte prazos, vínculos, horário, local, observações e contexto relacionado em um fluxo único da Agenda.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/agenda">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="goToEdit()">Editar</button>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando item da agenda...</div></section>
+} @else if (errorMessage) {
+  <section class="panel"><div class="error-box">{{ errorMessage }}</div></section>
+} @else {
+  <section class="detail-layout">
+    <article class="panel main-card">
+      @if (isTask) {
+        <span class="tag soft">{{ labelPriority() }}</span>
+      } @else {
+        <span class="status-pill">{{ labelStatus() }}</span>
+      }
+      <h2>{{ item?.title || 'Item da agenda' }}</h2>
+      <p>{{ labelKind() }} · {{ isTask ? 'Operação interna' : (item?.mode || 'presencial') }}</p>
+
+      <div class="info-grid">
+        <div><span>Status</span><strong>{{ labelStatus() }}</strong></div>
+        <div><span>Tipo</span><strong>{{ labelKind() }}</strong></div>
+        <div><span>Cliente</span><strong>{{ item?.client_name || item?.client_id || '-' }}</strong></div>
+        <div><span>Processo</span><strong>{{ item?.case_number || item?.case_id || '-' }}</strong></div>
+        @if (isTask) {
+          <div><span>Responsável</span><strong>{{ item?.assigned_user_name || item?.owner_user_id || '-' }}</strong></div>
+          <div><span>Prazo</span><strong>{{ formatDateTime(item?.due_at || item?.start_at) }}</strong></div>
+        } @else {
+          <div><span>Início</span><strong>{{ formatDateTime(item?.start_at) }}</strong></div>
+          <div><span>Fim</span><strong>{{ formatDateTime(item?.end_at) }}</strong></div>
+          <div><span>Modalidade</span><strong>{{ item?.mode || '-' }}</strong></div>
+          <div><span>Local / link</span><strong>{{ item?.location || '-' }}</strong></div>
+        }
+      </div>
+
+      <div class="notes-box">
+        <span>Descrição</span>
+        <p>{{ item?.description || item?.notes || 'Nenhuma observação registrada.' }}</p>
+      </div>
+    </article>
+
+    <article class="panel side-card">
+      <div class="mini-card">
+        <span>Criado em</span>
+        <strong>{{ formatDateTime(item?.created_at) }}</strong>
+      </div>
+      <div class="mini-card">
+        <span>Atualizado em</span>
+        <strong>{{ formatDateTime(item?.updated_at) }}</strong>
+      </div>
+      <div class="mini-card">
+        <span>Resumo</span>
+        <strong>{{ labelKind() }}</strong>
+        <small>{{ labelStatus() }}</small>
+      </div>
+
+      <div class="integration-group">
+        <span class="section-label">Calendário</span>
+        <button class="ghost-button full-width" type="button" (click)="downloadIcs()">Baixar .ics</button>
+        <button class="ghost-button full-width" type="button" (click)="openGoogleCalendar()">Abrir no Google Calendar</button>
+        <button class="ghost-button full-width" type="button" (click)="openOutlookCalendar()">Abrir no Outlook</button>
+      </div>
+
+      <div class="integration-group">
+        <span class="section-label">Ações relacionadas</span>
+        <button class="ghost-button full-width" type="button" (click)="openClient()">Abrir cliente</button>
+        <button class="ghost-button full-width" type="button" (click)="openProcess()">Abrir processo</button>
+        <button class="ghost-button full-width" type="button" (click)="createRelatedDocument()">Novo documento</button>
+        <button class="ghost-button full-width" type="button" (click)="createRelatedCommunication()">Nova comunicação</button>
+      </div>
+    </article>
+  </section>
+
+  <section class="detail-layout lower-layout">
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Documentos relacionados</h2>
+          <p>Arquivos associados ao mesmo cliente ou processo.</p>
+        </div>
+      </div>
+      <div class="timeline-list">
+        @for (document of relatedDocuments; track document.id) {
+          <button class="timeline-item action-item" type="button" (click)="openDocument(document.id)">
+            <strong>{{ document.title }}</strong>
+            <span>{{ document.subtitle }}</span>
+            <small>{{ document.when || '-' }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhum documento relacionado encontrado.</div>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Comunicações relacionadas</h2>
+          <p>Mensagens associadas ao mesmo cliente ou processo.</p>
+        </div>
+      </div>
+      <div class="timeline-list">
+        @for (message of relatedCommunications; track message.id) {
+          <button class="timeline-item action-item" type="button" (click)="openCommunication(message.id)">
+            <strong>{{ message.title }}</strong>
+            <span>{{ message.subtitle }}</span>
+            <small>{{ message.when || '-' }}</small>
+          </button>
+        } @empty {
+          <div class="timeline-item empty">Nenhuma comunicação relacionada encontrada.</div>
+        }
+      </div>
+    </article>
+  </section>
+}

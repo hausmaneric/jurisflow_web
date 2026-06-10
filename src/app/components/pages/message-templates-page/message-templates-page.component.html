@@ -1,0 +1,67 @@
+<section class="page-head">
+  <div>
+    <h1>Modelos de comunicacao</h1>
+    <p>Gerencie modelos usados em e-mails, WhatsApp, notificacoes e outras mensagens do escritorio.</p>
+  </div>
+  <div class="header-actions">
+    <a class="ghost-button" routerLink="/plataforma/configuracoes">Voltar</a>
+    <button ejs-button cssClass="e-primary" (click)="openCreate()">Novo modelo</button>
+  </div>
+</section>
+
+@if (loading) {
+  <section class="panel"><div class="empty-state">Carregando modelos...</div></section>
+} @else {
+  <section class="panel filters-panel">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar modelo de comunicacao..." />
+    </div>
+  </section>
+
+  @if (errorMessage) {
+    <section class="panel"><div class="error-box">{{ errorMessage }}</div></section>
+  }
+
+  <section class="panel table-panel">
+    <table>
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>Canal</th>
+          <th>Assunto</th>
+          <th>Previa</th>
+          <th>Status</th>
+          <th>Acoes</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of filteredTemplates; track item.id) {
+          <tr>
+            <td>{{ item.name || '-' }}</td>
+            <td>{{ item.channel || '-' }}</td>
+            <td>{{ item.subject || '-' }}</td>
+            <td>{{ previewText(item) }}</td>
+            <td><span class="status-pill">{{ item.active === false ? 'Inativo' : 'Ativo' }}</span></td>
+            <td class="actions-cell">
+              <button type="button" class="ghost-button slim" (click)="useTemplate(item)">Usar modelo</button>
+              <button type="button" class="icon-action" title="Editar modelo" (click)="openEdit(item)"><i class="pi pi-pencil"></i></button>
+              <button type="button" class="icon-action danger" title="Excluir modelo" (click)="requestRemove(item)"><i class="pi pi-trash"></i></button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6">Nenhum modelo de comunicacao encontrado.</td></tr>
+        }
+      </tbody>
+    </table>
+  </section>
+}
+
+<app-confirm-dialog
+  [visible]="!!pendingRemoval"
+  title="Excluir modelo de comunicacao"
+  [message]="'Deseja excluir o modelo ' + (pendingRemoval?.name || 'selecionado') + '? Esta acao nao pode ser desfeita.'"
+  confirmLabel="Excluir modelo"
+  (cancel)="cancelRemove()"
+  (confirm)="confirmRemove()"
+/>
