@@ -67,6 +67,7 @@
       </label>
       <label><span>Tipo</span><select formControlName="certificate_type"><option>A1</option><option>A3</option><option>Outro</option></select></label>
       <label *ngIf="certificateAccessMode === 'file_a1'"><span>URL segura do arquivo A1</span><input formControlName="certificate_file_url" /></label>
+      <label *ngIf="certificateAccessMode === 'file_a1'"><span>ID do agente local (opcional)</span><input formControlName="local_agent_id" placeholder="Ex.: escritorio-sp-01" /></label>
       <label *ngIf="certificateAccessMode === 'token_a3_local'"><span>Identificacao do token</span><input formControlName="device_identifier" placeholder="Serial, apelido ou token do agente local" /></label>
       <label *ngIf="certificateAccessMode === 'token_a3_local'"><span>ID do agente local</span><input formControlName="local_agent_id" placeholder="Ex.: escritorio-sp-01" /></label>
       <label *ngIf="certificateAccessMode === 'cloud_provider'"><span>Provedor</span><input formControlName="certificate_provider" placeholder="Ex.: Bird ID, NeoID, SafeID" /></label>
@@ -77,10 +78,16 @@
       <p class="form-hint full" *ngIf="certificateAccessMode === 'token_a3_local'">
         Para A3/token fisico, o JurisFlow nao recebe arquivo nem chave privada. Registre um agente local e execute-o no computador onde o token USB/smartcard estiver conectado.
       </p>
-      <div class="local-agent-box full" *ngIf="certificateAccessMode === 'token_a3_local'">
+      <p class="form-hint full" *ngIf="certificateAccessMode === 'file_a1'">
+        Para A1 por arquivo, a consulta pode usar um conector remoto seguro ou o agente local. Se usar a ponte local padrao dos tribunais, informe o ID do agente local.
+      </p>
+      <div class="local-agent-box full" *ngIf="usesLocalAgentOption()">
         <div>
-          <strong>Agente local A3</strong>
-          <p>Use este registro para autenticar consultas no tribunal sem enviar certificado, PIN ou arquivo para a nuvem.</p>
+          <strong>Agente local de certificado</strong>
+          <p>
+            Use este registro quando a consulta ao tribunal for executada no computador autorizado.
+            Para A3, o token/pen drive permanece conectado localmente. Para A1, o arquivo fica no storage/cofre informado ou no ambiente local autorizado.
+          </p>
         </div>
         <button class="secondary-button" type="button" (click)="registerLocalAgent()" [disabled]="saving || !certificateForm.controls.local_agent_id.value">
           Registrar agente local

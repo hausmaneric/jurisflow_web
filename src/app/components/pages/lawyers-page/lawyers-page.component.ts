@@ -164,12 +164,12 @@ export class LawyersPageComponent implements OnInit {
     try {
       const response = await firstValueFrom(
         this.api.postPath<any>('certificate-agents/register', {
-          name: `Agente A3 - ${this.selectedLawyer.name}`,
+          name: `Agente de certificado - ${this.selectedLawyer.name}`,
           agent_key: agentKey,
           metadata: {
             lawyer_id: this.selectedLawyerId,
             lawyer_name: this.selectedLawyer.name,
-            certificate_mode: 'token_a3_local'
+            certificate_mode: this.certificateAccessMode
           }
         })
       );
@@ -258,6 +258,10 @@ export class LawyersPageComponent implements OnInit {
       default:
         return 'Modo de certificado';
     }
+  }
+
+  usesLocalAgentOption(): boolean {
+    return this.certificateAccessMode === 'file_a1' || this.certificateAccessMode === 'token_a3_local';
   }
 
   private async loadCertificates(): Promise<void> {
