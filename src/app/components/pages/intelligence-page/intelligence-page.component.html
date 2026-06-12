@@ -193,6 +193,33 @@
         <h2>Sincronizações processuais</h2>
         <p>DataJud, tribunais e conectores externos.</p>
       </div>
+      <button class="secondary-button" type="button" (click)="seedCourtConnectors()" [disabled]="saving">
+        Preparar tribunais
+      </button>
+    </div>
+    <div class="bridge-card">
+      <div>
+        <strong>Ponte local dos tribunais</strong>
+        <span>{{ localBridgeManifest?.default_endpoint || runtimeEnvironment?.local_court_bridge_url || 'http://127.0.0.1:8765/tribunal-sync' }}</span>
+        <small>A1 local, A3/token USB e certificados em nuvem usam jobs auditados do agente local.</small>
+      </div>
+      <div class="bridge-pill" [class.online]="certificateAgents.length">
+        {{ certificateAgents.length }} agente(s)
+      </div>
+    </div>
+    <div class="agent-grid" *ngIf="certificateAgents.length">
+      <div class="agent-card" *ngFor="let agent of certificateAgents">
+        <strong>{{ agent.name }}</strong>
+        <span>{{ agent.agent_key }}</span>
+        <small [class.online]="agent.runtime_status === 'online'">{{ runtimeStatusLabel(agent.runtime_status) }} · {{ agent.last_seen_at ? (agent.last_seen_at | date: 'dd/MM/yyyy HH:mm') : 'sem conexão' }}</small>
+      </div>
+    </div>
+    <div class="compact-list job-list" *ngIf="certificateAgentJobs.length">
+      <div *ngFor="let job of certificateAgentJobs">
+        <strong>{{ job.court_name || job.court_system || 'Tribunal' }}</strong>
+        <span>{{ job.status }} · {{ job.case_number || job.case_title || 'processo não informado' }}</span>
+        <small>{{ job.error_message || job.assigned_agent_key || 'job auditado' }}</small>
+      </div>
     </div>
     <div class="compact-list">
       <div *ngFor="let log of syncLogs">

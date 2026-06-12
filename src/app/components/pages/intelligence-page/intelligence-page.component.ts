@@ -31,6 +31,9 @@ export class IntelligencePageComponent implements OnInit {
   transcriptions: any[] = [];
   aiSummaries: any[] = [];
   syncLogs: any[] = [];
+  certificateAgents: any[] = [];
+  certificateAgentJobs: any[] = [];
+  localBridgeManifest: any = null;
   webhooks: any[] = [];
   apiTokens: any[] = [];
   automationRules: any[] = [];
@@ -79,7 +82,19 @@ export class IntelligencePageComponent implements OnInit {
     this.message = '';
 
     try {
-      const [notes, transcriptions, aiSummaries, syncLogs, webhooks, apiTokens, automationRules, environment] = await Promise.all([
+      const [
+        notes,
+        transcriptions,
+        aiSummaries,
+        syncLogs,
+        webhooks,
+        apiTokens,
+        automationRules,
+        environment,
+        agents,
+        agentJobs,
+        bridgeManifest
+      ] = await Promise.all([
         firstValueFrom(this.api.list<any>('notes', { limit: 8 })),
         firstValueFrom(this.api.list<any>('transcriptions', { limit: 8 })),
         firstValueFrom(this.api.list<any>('transcription-summaries', { limit: 8 })),
@@ -87,7 +102,10 @@ export class IntelligencePageComponent implements OnInit {
         firstValueFrom(this.api.list<any>('webhooks', { limit: 5 })),
         firstValueFrom(this.api.list<any>('api-tokens', { limit: 5 })),
         firstValueFrom(this.api.list<any>('automation-rules', { limit: 5 })),
-        firstValueFrom(this.api.getPath<any>('environment'))
+        firstValueFrom(this.api.getPath<any>('environment')),
+        firstValueFrom(this.api.getPath<any[]>('certificate-agents', { limit: 8 })),
+        firstValueFrom(this.api.getPath<any[]>('certificate-agents/jobs', { limit: 8 })),
+        firstValueFrom(this.api.getPath<any>('court-connectors/local-bridge/manifest'))
       ]);
 
       this.notes = notes.data ?? [];
@@ -98,6 +116,9 @@ export class IntelligencePageComponent implements OnInit {
       this.apiTokens = apiTokens.data ?? [];
       this.automationRules = automationRules.data ?? [];
       this.runtimeEnvironment = environment.data ?? null;
+      this.certificateAgents = agents.data ?? [];
+      this.certificateAgentJobs = agentJobs.data ?? [];
+      this.localBridgeManifest = bridgeManifest.data ?? null;
       await this.loadVisibleSegments();
     } catch {
       this.message = 'Não foi possível carregar todos os dados avançados. Verifique permissões e conexão com a API.';
@@ -276,6 +297,24 @@ export class IntelligencePageComponent implements OnInit {
       );
       this.message = 'Webhook criado com sucesso.';
     });
+  }
+
+  async seedCourtConnectors(): Promise<void> {
+    await this.saveAction(async () => {
+      const response = await firstValueFrom(this.api.postPath<any>('court-connectors/seed-defaults', {}));
+      const total = response.data?.total ?? 0;
+      this.message = `${total} conectores de tribunais cadastrados ou atualizados.`;
+    });
+  }
+
+  runtimeStatusLabel(status?: string): string {
+    if (status === 'online') {
+      return 'Online';
+    }
+    if (status === 'never_seen') {
+      return 'Ainda não conectado';
+    }
+    return 'Offline';
   }
 
   private async saveAction(action: () => Promise<void>): Promise<void> {

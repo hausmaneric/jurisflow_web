@@ -36,6 +36,7 @@
 }
 
 .primary-button,
+.secondary-button,
 .row-actions button {
   align-items: center;
   background: linear-gradient(135deg, #0d1b2a, #1b263b);
@@ -51,7 +52,15 @@
   padding: 0 18px;
 }
 
+.secondary-button {
+  background: #ffffff;
+  border: 1px solid #d7dee8;
+  color: #0d1b2a;
+  min-height: 38px;
+}
+
 .primary-button:disabled,
+.secondary-button:disabled,
 .row-actions button:disabled {
   cursor: not-allowed;
   opacity: 0.62;
@@ -253,6 +262,95 @@ textarea:focus {
 
 .runtime-card small {
   color: #64748b;
+}
+
+.bridge-card {
+  align-items: center;
+  background: linear-gradient(135deg, #061a2f 0%, #0d2b4e 100%);
+  border: 1px solid rgba(212, 175, 55, 0.24);
+  border-radius: 16px;
+  color: #ffffff;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 14px;
+}
+
+.bridge-card strong,
+.bridge-card span,
+.bridge-card small {
+  display: block;
+}
+
+.bridge-card strong {
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.bridge-card span {
+  color: #e1c16e;
+  font-size: 12px;
+  font-weight: 800;
+  word-break: break-all;
+}
+
+.bridge-card small {
+  color: #cbd5e1;
+  margin-top: 4px;
+}
+
+.bridge-pill {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #cbd5e1;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 8px 10px;
+}
+
+.bridge-pill.online {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.28);
+  color: #bbf7d0;
+}
+
+.agent-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+
+.agent-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+
+.agent-card strong {
+  color: #0d1b2a;
+}
+
+.agent-card span,
+.agent-card small,
+.job-list small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.agent-card small.online {
+  color: #16a34a;
+  font-weight: 900;
+}
+
+.job-list {
+  margin-bottom: 12px;
 }
 
 .list-row,
