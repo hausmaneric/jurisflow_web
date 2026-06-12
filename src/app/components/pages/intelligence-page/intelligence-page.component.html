@@ -199,12 +199,12 @@
     </div>
     <div class="bridge-card">
       <div>
-        <strong>Ponte local dos tribunais</strong>
-        <span>{{ localBridgeManifest?.default_endpoint || runtimeEnvironment?.local_court_bridge_url || 'http://127.0.0.1:8765/tribunal-sync' }}</span>
-        <small>A1 local, A3/token USB e certificados em nuvem usam jobs auditados do agente local.</small>
+        <strong>{{ runtimeEnvironment?.server_court_connector_configured ? 'Conector remoto dos tribunais' : 'Ponte local dos tribunais' }}</strong>
+        <span>{{ runtimeEnvironment?.server_court_connector_url || localBridgeManifest?.default_endpoint || runtimeEnvironment?.local_court_bridge_url || 'http://127.0.0.1:8765/tribunal-sync' }}</span>
+        <small>{{ runtimeEnvironment?.server_court_connector_configured ? 'A1 seguro e certificados em nuvem consultam sem depender do computador do cliente.' : 'Configure o conector remoto para A1/nuvem; A3 USB continua exigindo agente local.' }}</small>
       </div>
-      <div class="bridge-pill" [class.online]="certificateAgents.length">
-        {{ certificateAgents.length }} agente(s)
+      <div class="bridge-pill" [class.online]="runtimeEnvironment?.server_court_connector_configured || certificateAgents.length">
+        {{ runtimeEnvironment?.server_court_connector_configured ? 'server-side' : (certificateAgents.length + ' agente(s)') }}
       </div>
     </div>
     <div class="agent-grid" *ngIf="certificateAgents.length">

@@ -36,10 +36,10 @@ export class LawyersPageComponent implements OnInit {
   });
 
   certificateForm = this.fb.group({
-    certificate_name: ['Certificado A1', Validators.required],
+    certificate_name: ['Certificado em nuvem', Validators.required],
     certificate_file_url: [''],
     certificate_type: ['A1'],
-    certificate_access_mode: ['file_a1'],
+    certificate_access_mode: ['cloud_provider'],
     certificate_provider: [''],
     device_identifier: [''],
     local_agent_id: [''],
@@ -238,11 +238,12 @@ export class LawyersPageComponent implements OnInit {
       certificate_provider: raw.certificate_provider || (mode === 'token_a3_local' ? 'local_agent' : ''),
       metadata: {
         access_mode_label: this.accessModeLabel(mode),
-        requires_private_key_upload: mode === 'file_a1',
+        preferred_execution: mode === 'token_a3_local' ? 'local_agent' : 'server_side',
+        requires_private_key_upload: false,
         notes:
           mode === 'token_a3_local'
             ? 'Certificado A3/token fisico: a chave privada permanece no dispositivo do advogado.'
-            : undefined
+            : 'Execucao server-side: sem dependencia do computador do cliente.'
       }
     };
   }
@@ -261,7 +262,7 @@ export class LawyersPageComponent implements OnInit {
   }
 
   usesLocalAgentOption(): boolean {
-    return this.certificateAccessMode === 'file_a1' || this.certificateAccessMode === 'token_a3_local';
+    return this.certificateAccessMode === 'token_a3_local';
   }
 
   private async loadCertificates(): Promise<void> {
