@@ -16,10 +16,17 @@
   background:
     linear-gradient(180deg, rgba(13, 27, 42, 0.94), rgba(13, 27, 42, 1)),
     radial-gradient(circle at bottom right, rgba(212, 175, 55, 0.2), transparent 22%);
+  overflow: hidden;
 }
 
 .login-brand-logo {
-  width: min(25rem, 100%);
+  width: min(32rem, 100%);
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 1.4rem;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
+  opacity: 0.95;
 }
 
 .login-brand h1 {
@@ -120,10 +127,32 @@ label {
   background: #fff;
   border: 1px solid rgba(18, 40, 74, 0.12);
   min-height: 4rem;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.field-shell:focus-within {
+  border-color: #3e5c9a;
+  box-shadow: 0 0 0 4px rgba(62, 92, 154, 0.12);
 }
 
 .field-shell i {
   color: #7b8799;
+}
+
+.field-shell input {
+  width: 100%;
+  min-width: 0;
+  height: 3.8rem;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #12284a;
+  font: inherit;
+  font-size: 1.05rem;
+}
+
+.field-shell input::placeholder {
+  color: #8793a8;
 }
 
 .toggle {
@@ -221,18 +250,6 @@ footer {
 footer a {
   color: #1f5eff;
   text-decoration: none;
-}
-
-:host ::ng-deep .juris-input.e-control-wrapper,
-:host ::ng-deep .juris-input.e-input-group {
-  width: 100%;
-}
-
-:host ::ng-deep .juris-input input {
-  border: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  color: #12284a !important;
 }
 
 @media (max-width: 1280px) {

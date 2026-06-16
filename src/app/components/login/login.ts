@@ -4,14 +4,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from '@syncfusion/ej2-angular-buttons';
-import { TextBoxModule } from '@syncfusion/ej2-angular-inputs';
 import { JurisflowDataService } from '../../services/jurisflow-data.service';
 import { LoginService } from '../../services/login.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, TextBoxModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ButtonModule],
   templateUrl: './login.html',
   styleUrls: ['./login.scss']
 })
@@ -54,8 +53,8 @@ export class Login {
     try {
       const response = await firstValueFrom(
         this.loginService.tenantLogin({
-          companyCode: this.loginForm.value.companyCode ?? '',
-          email: this.loginForm.value.email ?? '',
+          companyCode: (this.loginForm.value.companyCode ?? '').trim().toLowerCase(),
+          email: (this.loginForm.value.email ?? '').trim().toLowerCase(),
           password: this.loginForm.value.password ?? ''
         })
       );
@@ -76,7 +75,19 @@ export class Login {
       await this.router.navigate(['/plataforma/dashboard']);
     } catch (error) {
       this.loading = false;
-      this.errorMessage = error instanceof Error ? error.message : 'Falha ao autenticar com a API.';
+      this.errorMessage = this.extractErrorMessage(error);
     }
+  }
+
+  private extractErrorMessage(error: unknown): string {
+    const apiError = error as { error?: { message?: string; detail?: string }; message?: string };
+    const message = apiError?.error?.message || apiError?.message || 'Falha ao autenticar com a API.';
+    const detail = apiError?.error?.detail;
+
+    if (String(detail ?? '').includes('relation "users" does not exist')) {
+      return 'O banco da API ainda não foi preparado. Rode a migração/setup no Railway e tente novamente.';
+    }
+
+    return message;
   }
 }

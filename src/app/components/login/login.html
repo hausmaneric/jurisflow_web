@@ -1,17 +1,17 @@
 <div class="login-page">
   <section class="login-brand">
-    <img class="login-brand-logo" src="assets/jurisflow/logo.png" alt="JurisFlow" />
-    <h1>Organize seu escritorio.<br /><span>Acelere</span> seus resultados.</h1>
+    <img class="login-brand-logo" src="assets/jurisflow/logo_1.png" alt="JurisFlow" />
+    <h1>Organize seu escritório.<br /><span>Acelere</span> seus resultados.</h1>
     <p>
-      JurisFlow e a plataforma completa para gestao de clientes, processos, agenda,
+      JurisFlow é a plataforma completa para gestão de clientes, processos, agenda,
       documentos e muito mais.
     </p>
 
     <div class="feature-grid">
-      <article><i class="pi pi-users"></i><span>Gestao de clientes completa</span></article>
-      <article><i class="pi pi-calendar"></i><span>Agenda e audiencias inteligentes</span></article>
-      <article><i class="pi pi-file"></i><span>Documentos e procuracoes</span></article>
-      <article><i class="pi pi-bell"></i><span>Avisos e lembretes automaticos</span></article>
+      <article><i class="pi pi-users"></i><span>Gestão de clientes completa</span></article>
+      <article><i class="pi pi-calendar"></i><span>Agenda e audiências inteligentes</span></article>
+      <article><i class="pi pi-file"></i><span>Documentos e procurações</span></article>
+      <article><i class="pi pi-bell"></i><span>Avisos e lembretes automáticos</span></article>
     </div>
 
     <blockquote>
@@ -23,25 +23,25 @@
   <section class="login-panel">
     <div class="login-card">
       <h2>Bem-vindo de volta!</h2>
-      <p>Faca login para acessar sua conta.</p>
+      <p>Faça login para acessar sua conta.</p>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <label>Codigo do escritorio</label>
+        <label for="companyCode">Código do escritório</label>
         <div class="field-shell">
           <i class="pi pi-building"></i>
-          <ejs-textbox cssClass="juris-input e-bigger" formControlName="companyCode" placeholder="ex.: silva-advocacia"></ejs-textbox>
+          <input id="companyCode" type="text" formControlName="companyCode" placeholder="ex.: silva-advocacia" autocomplete="organization" />
         </div>
 
-        <label>E-mail</label>
+        <label for="email">E-mail</label>
         <div class="field-shell">
           <i class="pi pi-envelope"></i>
-          <ejs-textbox cssClass="juris-input e-bigger" formControlName="email" placeholder="seu@email.com"></ejs-textbox>
+          <input id="email" type="email" formControlName="email" placeholder="seu@email.com" autocomplete="email" />
         </div>
 
-        <label>Senha</label>
+        <label for="password">Senha</label>
         <div class="field-shell">
           <i class="pi pi-lock"></i>
-          <ejs-textbox [type]="showPassword ? 'text' : 'password'" cssClass="juris-input e-bigger" formControlName="password" placeholder="Sua senha"></ejs-textbox>
+          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Sua senha" autocomplete="current-password" />
           <button class="toggle" type="button" (click)="togglePassword()">
             <i class="pi" [class.pi-eye]="!showPassword" [class.pi-eye-slash]="showPassword"></i>
           </button>
@@ -69,7 +69,7 @@
       </button>
 
       <footer>
-        Ainda nao tem uma conta?
+        Ainda não tem uma conta?
         <a routerLink="/cadastro">Criar conta</a>
       </footer>
     </div>
