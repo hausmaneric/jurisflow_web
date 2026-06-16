@@ -26,6 +26,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top right, rgba(62, 92, 154, 0.12), transparent 24%),
     radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.08), transparent 20%),
@@ -85,12 +86,15 @@ a {
 .header-actions,
 .toolbar,
 .toolbar-actions {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
 .panel {
+  min-width: 0;
+  max-width: 100%;
   background: var(--juris-surface);
   border: 1px solid var(--juris-border);
   border-radius: 1.5rem;
@@ -128,16 +132,17 @@ a {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.2rem;
 }
 
 .metrics-grid.compact {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .metric-card {
+  min-width: 0;
   background: var(--juris-surface);
   border: 1px solid var(--juris-border);
   border-radius: 1.4rem;
@@ -160,6 +165,7 @@ a {
 .metric-card span,
 .metric-card small {
   display: block;
+  overflow-wrap: anywhere;
 }
 
 .metric-card span {
@@ -205,8 +211,8 @@ a {
 }
 
 .search-box {
+  min-width: 0;
   flex: 1;
-  min-width: 15rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -280,7 +286,10 @@ a {
 }
 
 .table-shell {
+  width: 100%;
+  max-width: 100%;
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .juris-table {
@@ -374,7 +383,7 @@ a {
 @media (max-width: 1400px) {
   .metrics-grid,
   .metrics-grid.compact {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -390,5 +399,13 @@ a {
   .metrics-grid,
   .metrics-grid.compact {
     grid-template-columns: 1fr;
+  }
+
+  .search-box,
+  .toolbar select,
+  .toolbar-actions select,
+  .ghost-button {
+    width: 100%;
+    min-width: 0;
   }
 }

@@ -33,6 +33,7 @@
               }
             ],
             "styles": [
+              "node_modules/primeicons/primeicons.css",
               "node_modules/@syncfusion/ej2-base/styles/tailwind.css",
               "node_modules/@syncfusion/ej2-icons/styles/tailwind.css",
               "node_modules/@syncfusion/ej2-buttons/styles/tailwind.css",

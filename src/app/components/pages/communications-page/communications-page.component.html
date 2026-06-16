@@ -48,38 +48,40 @@
 
 <section class="detail-layout">
   <article class="panel table-panel">
-    <table>
-      <thead>
-        <tr>
-          <th>Assunto</th>
-          <th>Processo / Cliente</th>
-          <th>Canal</th>
-          <th>Destinatario</th>
-          <th>Data / Hora</th>
-          <th>Status</th>
-          <th>Acoes</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (message of filteredMessages; track message.id || $index; let i = $index) {
-          <tr [class.selected]="selectedMessage === message" (click)="selectMessage(i)">
-            <td>{{ message.assunto }}</td>
-            <td>{{ message.processoCliente }}</td>
-            <td>{{ message.canal }}</td>
-            <td>{{ message.destinatario }}</td>
-            <td>{{ message.dataHora }}</td>
-            <td><span class="status-pill">{{ message.status }}</span></td>
-            <td class="actions-cell">
-              <button type="button" class="icon-action" (click)="openDetails(message); $event.stopPropagation()" title="Ver comunicacao"><i class="pi pi-eye"></i></button>
-              <button type="button" class="icon-action" (click)="openEdit(message); $event.stopPropagation()" title="Editar comunicacao"><i class="pi pi-pencil"></i></button>
-              <button type="button" class="icon-action" (click)="requestRemove(message); $event.stopPropagation()" title="Excluir comunicacao"><i class="pi pi-trash"></i></button>
-            </td>
+    <div class="table-shell">
+      <table class="juris-table">
+        <thead>
+          <tr>
+            <th>Assunto</th>
+            <th>Processo / Cliente</th>
+            <th>Canal</th>
+            <th>Destinatario</th>
+            <th>Data / Hora</th>
+            <th>Status</th>
+            <th>Acoes</th>
           </tr>
-        } @empty {
-          <tr><td colspan="7">Nenhuma comunicacao encontrada para os filtros atuais.</td></tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (message of filteredMessages; track message.id || $index; let i = $index) {
+            <tr [class.selected]="selectedMessage === message" (click)="selectMessage(i)">
+              <td>{{ message.assunto }}</td>
+              <td>{{ message.processoCliente }}</td>
+              <td>{{ message.canal }}</td>
+              <td>{{ message.destinatario }}</td>
+              <td>{{ message.dataHora }}</td>
+              <td><span class="status-pill">{{ message.status }}</span></td>
+              <td class="actions-cell">
+                <button type="button" class="icon-action" (click)="openDetails(message); $event.stopPropagation()" title="Ver comunicacao"><i class="pi pi-eye"></i></button>
+                <button type="button" class="icon-action" (click)="openEdit(message); $event.stopPropagation()" title="Editar comunicacao"><i class="pi pi-pencil"></i></button>
+                <button type="button" class="icon-action" (click)="requestRemove(message); $event.stopPropagation()" title="Excluir comunicacao"><i class="pi pi-trash"></i></button>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7">Nenhuma comunicacao encontrada para os filtros atuais.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </article>
 
   <article class="panel preview-panel">
