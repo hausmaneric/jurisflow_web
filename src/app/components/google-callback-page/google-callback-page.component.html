@@ -1,0 +1,14 @@
+<main class="google-callback">
+  <section class="callback-card">
+    <img src="assets/jurisflow/logo_1.png" alt="JurisFlow" />
+    <div class="spinner" [class.paused]="!loading"></div>
+    <h1>{{ message }}</h1>
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+      <a routerLink="/login">Voltar para o login</a>
+    } @else {
+      <p>Estamos preparando seu ambiente com segurança.</p>
+    }
+  </section>
+</main>

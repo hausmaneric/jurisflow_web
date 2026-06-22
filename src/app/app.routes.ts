@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth.guard';
 import { ClientPortalPageComponent } from './components/client-portal-page/client-portal-page.component';
+import { GoogleCallbackPageComponent } from './components/google-callback-page/google-callback-page.component';
 import { LeadCapturePageComponent } from './components/lead-capture-page/lead-capture-page.component';
 import { Login } from './components/login/login';
 import { MainShellComponent } from './components/main/main-shell.component';
@@ -43,6 +44,7 @@ import { UsersPageComponent } from './components/pages/users-page/users-page.com
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
+  { path: 'auth/google/callback', component: GoogleCallbackPageComponent },
   { path: 'cadastro', component: RegisterPageComponent },
   { path: 'escritorio/:companyCode/contato', component: LeadCapturePageComponent },
   { path: 'escritorio/:companyCode/portal', component: ClientPortalPageComponent },

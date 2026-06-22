@@ -16,7 +16,7 @@
 
     <blockquote>
       O JurisFlow tornou nossa rotina mais organizada, produtiva e lucrativa.
-      <strong>Escritorio Martins & Associados</strong>
+      <strong>Escritório Martins & Associados</strong>
     </blockquote>
   </section>
 
@@ -27,22 +27,22 @@
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <label for="companyCode">Código do escritório</label>
-        <div class="field-shell">
+        <div class="field-shell" [class.invalid]="loginForm.controls.companyCode.touched && loginForm.controls.companyCode.invalid">
           <i class="pi pi-building"></i>
           <input id="companyCode" type="text" formControlName="companyCode" placeholder="ex.: silva-advocacia" autocomplete="organization" />
         </div>
 
         <label for="email">E-mail</label>
-        <div class="field-shell">
+        <div class="field-shell" [class.invalid]="loginForm.controls.email.touched && loginForm.controls.email.invalid">
           <i class="pi pi-envelope"></i>
           <input id="email" type="email" formControlName="email" placeholder="seu@email.com" autocomplete="email" />
         </div>
 
         <label for="password">Senha</label>
-        <div class="field-shell">
+        <div class="field-shell" [class.invalid]="loginForm.controls.password.touched && loginForm.controls.password.invalid">
           <i class="pi pi-lock"></i>
           <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Sua senha" autocomplete="current-password" />
-          <button class="toggle" type="button" (click)="togglePassword()">
+          <button class="toggle" type="button" (click)="togglePassword()" aria-label="Alternar visibilidade da senha">
             <i class="pi" [class.pi-eye]="!showPassword" [class.pi-eye-slash]="showPassword"></i>
           </button>
         </div>
@@ -52,7 +52,7 @@
           <a routerLink="/recuperar-senha">Esqueci minha senha</a>
         </div>
 
-        <button ejs-button class="submit-button" [disabled]="loading" type="submit">
+        <button ejs-button class="submit-button" [disabled]="loading || googleLoading" type="submit">
           {{ loading ? 'Entrando...' : 'Entrar' }}
         </button>
 
@@ -63,9 +63,9 @@
 
       <div class="divider"><span>ou</span></div>
 
-      <button class="google-button" type="button">
+      <button class="google-button" type="button" (click)="loginWithGoogle()" [disabled]="loading || googleLoading">
         <span class="google-mark">G</span>
-        <span>Entrar com Google</span>
+        <span>{{ googleLoading ? 'Conectando ao Google...' : 'Entrar com Google' }}</span>
       </button>
 
       <footer>

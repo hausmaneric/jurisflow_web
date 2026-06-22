@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   NxResult,
+  GoogleOAuthStartData,
+  GoogleOAuthStartPayload,
   PasswordResetPayload,
   PasswordResetRequestData,
   PasswordResetRequestPayload,
@@ -58,6 +60,13 @@ export class LoginService {
     );
   }
 
+  startGoogleLogin(payload: GoogleOAuthStartPayload): Observable<NxResult<GoogleOAuthStartData>> {
+    return this.http.post<NxResult<GoogleOAuthStartData>>(`${resources.apiURL}auth/google/start`, {
+      company_code: payload.companyCode,
+      return_url: payload.returnUrl
+    });
+  }
+
   requestPasswordReset(payload: PasswordResetRequestPayload): Observable<NxResult<PasswordResetRequestData>> {
     return this.http.post<NxResult<PasswordResetRequestData>>(`${resources.apiURL}auth/request-password-reset`, {
       company_code: payload.companyCode,
@@ -103,6 +112,18 @@ export class LoginService {
   }
 
   getLocalToken(): StoredSession | null {
+    const parsed = this.getStoredSession();
+    if (!parsed) {
+      return null;
+    }
+
+    if (this.isTokenExpired(parsed.token)) {
+      return null;
+    }
+    return parsed;
+  }
+
+  getStoredSession(): StoredSession | null {
     const stored = localStorage.getItem(resources.sessionStorageKey);
     if (!stored) {
       return null;
@@ -110,7 +131,7 @@ export class LoginService {
 
     try {
       const parsed = JSON.parse(stored) as StoredSession;
-      if (!parsed?.token || this.isTokenExpired(parsed.token)) {
+      if (!parsed?.token || !parsed?.refreshToken) {
         this.clearToken();
         return null;
       }
@@ -130,7 +151,21 @@ export class LoginService {
   }
 
   getRefreshToken(): string {
-    return this.getLocalToken()?.refreshToken ?? '';
+    return this.getStoredSession()?.refreshToken ?? '';
+  }
+
+  refresh(refreshToken: string): Observable<NxResult<{ access_token: string }>> {
+    return this.http.post<NxResult<{ access_token: string }>>(`${resources.apiURL}auth/refresh`, {
+      refresh_token: refreshToken
+    });
+  }
+
+  updateAccessToken(token: string): void {
+    const session = this.getStoredSession();
+    if (!session) {
+      return;
+    }
+    this.saveLocalToken({ ...session, token });
   }
 
   clearToken(): void {
@@ -139,6 +174,10 @@ export class LoginService {
 
   isAuthenticated(): boolean {
     return this.getToken().trim().length > 0;
+  }
+
+  hasRefreshSession(): boolean {
+    return this.getRefreshToken().trim().length > 0;
   }
 
   isAuthenticationError(message?: string): boolean {

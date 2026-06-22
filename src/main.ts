@@ -2,10 +2,11 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { App } from './app/app';
 import { provideRouter, RouteReuseStrategy } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app/app.routes';
 import { RouteReuse } from './app/app.route.reuse';
+import { authInterceptor } from './app/auth.interceptor';
 
 // 🔹 Syncfusion
 import { registerLicense, enableRipple } from '@syncfusion/ej2-base';
@@ -15,7 +16,7 @@ enableRipple(true);
 
 bootstrapApplication(App, {
   providers: [
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimations(),
     provideRouter(routes),
   

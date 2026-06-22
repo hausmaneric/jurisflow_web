@@ -71,6 +71,7 @@ export class JurisflowDataService {
     avatar: 'JF'
   };
 
+  apiConnectionError = '';
   private remoteLoaded = false;
 
   constructor(
@@ -167,15 +168,19 @@ export class JurisflowDataService {
   }
 
   async loadRemoteContext(force = false): Promise<void> {
-    if (!this.loginService.isAuthenticated() || (this.remoteLoaded && !force)) {
+    if (
+      (!this.loginService.isAuthenticated() && !this.loginService.hasRefreshSession()) ||
+      (this.remoteLoaded && !force)
+    ) {
       return;
     }
 
+    this.apiConnectionError = '';
     const headers = new HttpHeaders({
       Authorization: `Bearer ${this.loginService.getToken()}`
     });
 
-    const [me, summary, clients, cases, agendaItems, documents, messages, financialEntries] = await Promise.all([
+    const [me, summary, clients, cases, agendaItems, documents, messages, financialEntries, subscriptions] = await Promise.all([
       this.request<any>('me', headers),
       this.request<Record<string, number>>('reports/summary', headers),
       this.request<any[]>('clients', headers),
@@ -183,8 +188,14 @@ export class JurisflowDataService {
       this.request<any[]>('agenda-items', headers),
       this.request<any[]>('documents', headers),
       this.request<any[]>('messages', headers),
-      this.request<any[]>('financial-entries', headers)
+      this.request<any[]>('financial-entries', headers),
+      this.request<any[]>('company-subscriptions', headers)
     ]);
+
+    if (!me && !summary && !clients && !cases && !agendaItems) {
+      this.apiConnectionError = 'Não foi possível carregar os dados da API. Verifique sua conexão ou entre novamente.';
+      return;
+    }
 
     if (me) {
       this.user = {
@@ -194,6 +205,17 @@ export class JurisflowDataService {
         plan: this.user.plan,
         avatar: this.initials(me.name ?? this.user.name)
       };
+    }
+
+    if (subscriptions?.length) {
+      const activeSubscription = subscriptions.find((item) => item.status === 'active') ?? subscriptions[0];
+      const planName = activeSubscription.plan_name ?? activeSubscription.name ?? activeSubscription.billing_data?.plan_code;
+      if (planName) {
+        this.user = {
+          ...this.user,
+          plan: `Plano ${String(planName).charAt(0).toUpperCase()}${String(planName).slice(1)}`
+        };
+      }
     }
 
     if (summary) {
@@ -299,7 +321,7 @@ export class JurisflowDataService {
         status: item.status
       }));
 
-      this.navItems[3] = { ...this.navItems[3], badge: String(this.agendaItems.length) };
+      this.navItems[4] = { ...this.navItems[4], badge: String(this.agendaItems.length) };
     }
 
     if (documents) {

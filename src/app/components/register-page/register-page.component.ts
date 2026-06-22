@@ -22,13 +22,14 @@ export class RegisterPageComponent {
   officeForm;
   loading = false;
   errorMessage = '';
+  selectedPlanCode = 'enterprise';
 
   readonly states = ['SP', 'RJ', 'MG', 'PR', 'SC', 'BA', 'DF'];
 
   readonly plans = [
-    { name: 'Starter', price: 'R$ 79,90 /mes', highlights: ['Ate 2 usuarios', 'Clientes ilimitados', 'Agenda e atendimentos', 'Documentos e procuracoes'] },
-    { name: 'Pro', price: 'R$ 149,90 /mes', highlights: ['Usuarios ilimitados', 'Clientes ilimitados', 'Processos e agenda', 'Relatorios avancados'] },
-    { name: 'Enterprise', price: 'R$ 299,90 /mes', highlights: ['Tudo do plano Pro', 'Automacao e integracoes', 'WhatsApp Business', 'API e webhooks'], selected: true }
+    { code: 'starter', name: 'Starter', price: 'R$ 79,90 /mês', highlights: ['Até 2 usuários', 'Clientes ilimitados', 'Agenda e atendimentos', 'Documentos e procurações'] },
+    { code: 'pro', name: 'Pro', price: 'R$ 149,90 /mês', highlights: ['Usuários ilimitados', 'Clientes ilimitados', 'Processos e agenda', 'Relatórios avançados'] },
+    { code: 'enterprise', name: 'Enterprise', price: 'R$ 299,90 /mês', highlights: ['Tudo do plano Pro', 'Automação e integrações', 'WhatsApp Business', 'API e webhooks'] }
   ];
 
   constructor(
@@ -42,7 +43,8 @@ export class RegisterPageComponent {
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
+      termsAccepted: [false, Validators.requiredTrue]
     });
 
     this.officeForm = this.fb.group({
@@ -82,6 +84,10 @@ export class RegisterPageComponent {
     void this.router.navigate(['/login']);
   }
 
+  selectPlan(planCode: string): void {
+    this.selectedPlanCode = planCode;
+  }
+
   async finish(): Promise<void> {
     if (!this.validateAccount() || this.officeForm.invalid || this.loading) {
       this.officeForm.markAllAsTouched();
@@ -99,10 +105,18 @@ export class RegisterPageComponent {
         this.loginService.publicSignup({
           company_code: companyCode,
           company_name: this.officeForm.value.officeName ?? '',
+          plan_code: this.selectedPlanCode,
           company_document: this.onlyDigits(this.officeForm.value.cnpj ?? ''),
           company_email: this.officeForm.value.email ?? '',
           company_phone: this.onlyDigits(this.officeForm.value.phone ?? ''),
           billing_email: this.officeForm.value.email ?? '',
+          office_oab: this.officeForm.value.oab ?? '',
+          office_address: this.officeForm.value.address ?? '',
+          office_number: this.officeForm.value.number ?? '',
+          office_complement: this.officeForm.value.complement ?? '',
+          office_city: this.officeForm.value.city ?? '',
+          office_state: this.officeForm.value.state ?? '',
+          office_postal_code: this.onlyDigits(this.officeForm.value.cep ?? ''),
           admin_name: this.accountForm.value.name ?? '',
           admin_email: this.accountForm.value.email ?? '',
           admin_phone: this.onlyDigits(this.accountForm.value.phone ?? ''),

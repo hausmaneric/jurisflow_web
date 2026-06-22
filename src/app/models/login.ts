@@ -63,10 +63,18 @@ export interface PublicClientPortalSessionPayload {
 export interface PublicSignupPayload {
   company_code: string;
   company_name: string;
+  plan_code?: string;
   company_document?: string;
   company_email?: string;
   company_phone?: string;
   billing_email?: string;
+  office_oab?: string;
+  office_address?: string;
+  office_number?: string;
+  office_complement?: string;
+  office_city?: string;
+  office_state?: string;
+  office_postal_code?: string;
   admin_name: string;
   admin_email: string;
   admin_phone?: string;
@@ -81,6 +89,18 @@ export interface PublicSignupData {
   admin_user_id: string;
   company_code: string;
   admin_email: string;
+  plan_code?: string;
+  plan_name?: string;
+}
+
+export interface GoogleOAuthStartPayload {
+  companyCode: string;
+  returnUrl: string;
+}
+
+export interface GoogleOAuthStartData {
+  authorization_url: string;
+  redirect_uri: string;
 }
 
 export interface PublicSignatureSignPayload {

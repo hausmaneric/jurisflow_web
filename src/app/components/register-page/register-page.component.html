@@ -127,7 +127,10 @@
           </div>
         </div>
 
-        <label class="terms"><input type="checkbox" checked /> Li e concordo com os Termos de Uso e Politica de Privacidade</label>
+        <label class="terms">
+          <input type="checkbox" [formControl]="accountForm.controls.termsAccepted" />
+          Li e concordo com os Termos de Uso e Política de Privacidade
+        </label>
       } @else if (step === 2) {
         <form [formGroup]="officeForm" class="form-grid enhanced">
           <label>
@@ -150,9 +153,13 @@
             <span>E-mail institucional</span>
             <ejs-textbox cssClass="juris-input" formControlName="email" placeholder="contato@seuescritorio.com.br"></ejs-textbox>
           </label>
-          <label class="full">
+          <label>
             <span>Endereco</span>
             <ejs-textbox cssClass="juris-input" formControlName="address" placeholder="Rua, numero, bairro"></ejs-textbox>
+          </label>
+          <label>
+            <span>Número</span>
+            <ejs-textbox cssClass="juris-input" formControlName="number" placeholder="123"></ejs-textbox>
           </label>
           <label>
             <span>Complemento</span>
@@ -201,7 +208,16 @@
 
         <div class="plans-grid">
           @for (plan of plans; track plan.name) {
-            <article class="plan-card" [class.selected]="plan.selected">
+            <article
+              class="plan-card"
+              role="button"
+              tabindex="0"
+              [class.selected]="plan.code === selectedPlanCode"
+              [attr.aria-pressed]="plan.code === selectedPlanCode"
+              (click)="selectPlan(plan.code)"
+              (keydown.enter)="selectPlan(plan.code)"
+              (keydown.space)="selectPlan(plan.code)"
+            >
               <div class="plan-head">
                 <h3>{{ plan.name }}</h3>
                 @if (plan.name === 'Pro') {
@@ -214,6 +230,9 @@
                   <li>{{ highlight }}</li>
                 }
               </ul>
+              @if (plan.code === selectedPlanCode) {
+                <span class="selected-plan">Plano selecionado</span>
+              }
             </article>
           }
         </div>
