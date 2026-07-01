@@ -28,7 +28,7 @@ export class Login {
     private dataService: JurisflowDataService
   ) {
     this.loginForm = this.fb.group({
-      companyCode: ['', [Validators.required]],
+      companyCode: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
     });
@@ -86,7 +86,7 @@ export class Login {
     }
 
     const companyCodeControl = this.loginForm.controls.companyCode;
-    if (companyCodeControl.invalid) {
+    if (!(companyCodeControl.value ?? '').trim()) {
       companyCodeControl.markAsTouched();
       this.errorMessage = 'Informe o código do escritório para entrar com Google.';
       return;
@@ -116,12 +116,27 @@ export class Login {
   }
 
   private extractErrorMessage(error: unknown): string {
-    const apiError = error as { error?: { message?: string; detail?: string }; message?: string };
-    const message = apiError?.error?.message || apiError?.message || 'Falha ao autenticar com a API.';
+    const apiError = error as {
+      error?: { message?: string; detail?: string; error_msg?: string };
+      message?: string;
+    };
+    const message =
+      apiError?.error?.message ||
+      apiError?.error?.error_msg ||
+      apiError?.message ||
+      'Falha ao autenticar com a API.';
     const detail = apiError?.error?.detail;
 
     if (String(detail ?? '').includes('relation "users" does not exist')) {
       return 'O banco da API ainda não foi preparado. Rode a migração/setup no Railway e tente novamente.';
+    }
+
+    if (message.toLowerCase().includes('company_code')) {
+      return 'Informe o código do escritório exatamente como foi criado no cadastro.';
+    }
+
+    if (message.toLowerCase().includes('codigo do escritorio')) {
+      return message;
     }
 
     return message;

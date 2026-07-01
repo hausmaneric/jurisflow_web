@@ -26,7 +26,7 @@
       <p>Faça login para acessar sua conta.</p>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <label for="companyCode">Código do escritório</label>
+        <label for="companyCode">Código do escritório <span class="optional-label">opcional para login por senha</span></label>
         <div class="field-shell" [class.invalid]="loginForm.controls.companyCode.touched && loginForm.controls.companyCode.invalid">
           <i class="pi pi-building"></i>
           <input id="companyCode" type="text" formControlName="companyCode" placeholder="ex.: silva-advocacia" autocomplete="organization" />

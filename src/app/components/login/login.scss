@@ -20,13 +20,14 @@
 }
 
 .login-brand-logo {
-  width: min(32rem, 100%);
+  width: min(34rem, 100%);
   aspect-ratio: 16 / 9;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   border-radius: 1.4rem;
   box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
   opacity: 0.95;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .login-brand h1 {
@@ -118,6 +119,14 @@ label {
   color: #12284a;
 }
 
+.optional-label {
+  display: inline-block;
+  margin-left: 0.35rem;
+  color: #7f8aa0;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
 .field-shell {
   display: flex;
   align-items: center;
@@ -126,7 +135,7 @@ label {
   border-radius: 1rem;
   background: #fff;
   border: 1px solid rgba(18, 40, 74, 0.12);
-  min-height: 4rem;
+  min-height: 4.35rem;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -147,7 +156,7 @@ label {
 .field-shell input {
   width: 100%;
   min-width: 0;
-  height: 3.8rem;
+  height: 4.1rem;
   border: 0;
   outline: none;
   background: transparent;
@@ -195,6 +204,8 @@ label {
   font-weight: 800;
   font-size: 1.3rem;
   margin-top: 0.35rem;
+  border: 0 !important;
+  box-shadow: 0 16px 32px rgba(212, 175, 55, 0.24);
 }
 
 .error-box {
